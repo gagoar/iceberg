@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f .iceberg/last-score.txt ] && printf '{\"systemMessage\": \"ICEBERG: %s\"}' \"$(cat .iceberg/last-score.txt)\" || true"
+          }
+        ]
+      }
+    ]
+  }
+}

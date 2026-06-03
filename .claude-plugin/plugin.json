@@ -1,6 +1,6 @@
 {
   "name": "iceberg",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
   "author": {
     "name": "gagoar",
@@ -9,5 +9,6 @@
   "homepage": "https://github.com/gagoar/iceberg",
   "license": "MIT",
   "keywords": ["writing", "documentation", "hemingway", "technical-writing", "style"],
-  "skills": ["./skills/edit"]
+  "skills": ["./skills/edit", "./skills/score"],
+  "hooks": "./.claude-plugin/hooks.json"
 }
