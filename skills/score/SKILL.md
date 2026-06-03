@@ -14,7 +14,6 @@ description: >
 
   Returns a structured violation report with grade, per-rule counts, and quoted offenders.
   Never modifies the document.
-
 argument-hint: "[file-path or paste text] [optional: intent description]"
 allowed-tools: Read, Write, Agent
 ---
