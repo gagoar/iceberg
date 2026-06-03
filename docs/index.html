@@ -168,12 +168,16 @@ tr:last-child td { border-bottom: none; }
         <div class="eyebrow">Getting started</div>
         <h2>Install</h2>
         <div class="install-card">
-          <pre><span style="color:var(--gray-500)"># Three commands. Takes under 30 seconds.</span>
+          <pre><span style="color:var(--gray-500)"># Install</span>
 <span style="color:var(--clay)">/plugin marketplace add</span> <span style="color:var(--olive)">gagoar/iceberg</span>
 <span style="color:var(--clay)">/plugin install</span> <span style="color:var(--olive)">iceberg@iceberg</span>
+<span style="color:var(--clay)">/reload-plugins</span>
+
+<span style="color:var(--gray-500)"># Update</span>
+<span style="color:var(--clay)">/plugin update</span> <span style="color:var(--olive)">iceberg@iceberg</span>
 <span style="color:var(--clay)">/reload-plugins</span></pre>
         </div>
-        <div class="install-note">After install, iceberg scores every plan Claude produces automatically. No additional setup needed.</div>
+        <div class="install-note">After install, iceberg scores every plan Claude produces automatically. Auto-update is off by default — enable it in <code>/plugin</code> → Marketplaces → iceberg.</div>
         <div style="margin-top: 24px;">
           <div class="skill-row">
             <div class="skill-pill"><span class="dot"></span>/iceberg:score — read-only analysis</div>

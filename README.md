@@ -12,6 +12,15 @@ Named after Hemingway's iceberg theory: the strength of a document comes from wh
 /reload-plugins
 ```
 
+## Update
+
+```
+/plugin update iceberg@iceberg
+/reload-plugins
+```
+
+Auto-update is off by default for third-party plugins. Enable it in the plugin manager: open `/plugin` → Marketplaces tab → toggle auto-update for iceberg.
+
 ## What it does
 
 Two skills ship with iceberg:
