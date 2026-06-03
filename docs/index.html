@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iceberg — Hemingway writing rules for Claude Code</title>
+<style>
+:root {
+  --ivory:    #FAF9F5;
+  --slate:    #141413;
+  --clay:     #D97757;
+  --clay-d:   #B85C3E;
+  --oat:      #E3DACC;
+  --olive:    #788C5D;
+  --rust:     #B04A3F;
+  --gray-150: #F0EEE6;
+  --gray-300: #D1CFC5;
+  --gray-500: #87867F;
+  --gray-700: #3D3D3A;
+  --white:    #FFFFFF;
+  --serif: ui-serif, Georgia, "Times New Roman", serif;
+  --sans:  system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --radius-panel: 12px;
+  --radius-row:   8px;
+  --border: 1.5px solid var(--gray-300);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background: var(--ivory);
+  color: var(--gray-700);
+  font-size: 15px;
+  line-height: 1.6;
+  padding: 56px 24px 96px;
+  -webkit-font-smoothing: antialiased;
+}
+.page { max-width: 920px; margin: 0 auto; }
+
+h1 { font-family: var(--serif); font-weight: 500; font-size: 38px; letter-spacing: -0.01em; line-height: 1.15; color: var(--slate); margin-bottom: 14px; }
+h2 { font-family: var(--serif); font-weight: 500; font-size: 24px; letter-spacing: -0.01em; color: var(--slate); margin-bottom: 10px; }
+h3 { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--slate); margin-bottom: 6px; }
+p { margin-bottom: 14px; }
+p:last-child { margin-bottom: 0; }
+hr.rule { border: none; border-top: 1px solid var(--gray-300); margin: 40px 0; }
+.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 10px; }
+code { font-family: var(--mono); font-size: 0.9em; background: var(--gray-150); padding: 1px 6px; border-radius: 4px; color: var(--slate); }
+
+.layout { display: grid; grid-template-columns: 190px 1fr; gap: 56px; }
+@media (max-width: 760px) { .layout { grid-template-columns: 1fr; } .toc { display: none; } }
+
+.toc { position: sticky; top: 40px; align-self: start; padding-top: 4px; }
+.toc-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-500); margin-bottom: 10px; }
+.toc a { display: block; font-size: 13px; color: var(--gray-500); text-decoration: none; padding: 5px 12px; border-left: 2px solid var(--gray-300); margin-bottom: 2px; transition: color 0.1s, border-color 0.1s; }
+.toc a:hover, .toc a.active { color: var(--slate); border-left-color: var(--clay); }
+
+.content { min-width: 0; }
+.section { margin-bottom: 56px; }
+
+.hero { margin-bottom: 56px; }
+.hero-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--clay); margin-bottom: 14px; }
+.hero-subtitle { font-size: 18px; color: var(--gray-500); font-style: italic; font-family: var(--serif); max-width: 600px; margin-bottom: 20px; line-height: 1.5; }
+.hero-summary { font-size: 15px; color: var(--gray-700); max-width: 580px; padding: 16px 20px; background: var(--white); border: var(--border); border-left: 4px solid var(--clay); border-radius: 0 var(--radius-row) var(--radius-row) 0; }
+
+.skill-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+.skill-pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--white); border: var(--border); border-radius: var(--radius-row); font-family: var(--mono); font-size: 13px; color: var(--slate); }
+.skill-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--clay); flex-shrink: 0; }
+.skill-pill .dot.green { background: var(--olive); }
+
+.install-card { background: var(--slate); border-radius: var(--radius-panel); padding: 20px 24px; margin-bottom: 16px; }
+.install-card pre { font-family: var(--mono); font-size: 13px; line-height: 1.8; color: #E8E6DE; }
+.install-note { font-size: 13px; color: var(--gray-500); padding: 10px 14px; background: var(--gray-150); border-radius: var(--radius-row); border: var(--border); }
+
+.auto-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(120,140,93,0.12); border: 1.5px solid rgba(120,140,93,0.4); border-radius: 999px; font-family: var(--mono); font-size: 11px; color: var(--olive); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 14px; }
+.auto-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--olive); }
+
+.code-panel { background: var(--slate); border-radius: var(--radius-panel); padding: 18px 22px; overflow-x: auto; margin-bottom: 20px; }
+.code-panel pre { font-family: var(--mono); font-size: 12px; line-height: 1.65; color: #E8E6DE; white-space: pre; }
+.cm  { color: var(--gray-500); }
+.kw  { color: var(--clay); }
+.str { color: var(--olive); }
+.fn  { color: #C9B98A; }
+.dim { color: #6B6960; }
+
+.callout-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+.callout-list li { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; }
+.callout-key { font-family: var(--mono); font-size: 11px; background: var(--oat); color: var(--slate); padding: 3px 9px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; margin-top: 1px; font-weight: 600; }
+.callout-val { color: var(--gray-700); line-height: 1.5; }
+
+table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--white); border: var(--border); border-radius: var(--radius-panel); overflow: hidden; margin-bottom: 20px; }
+th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gray-500); background: var(--gray-150); padding: 11px 16px; border-bottom: 1px solid var(--gray-300); }
+td { padding: 11px 16px; font-size: 14px; border-bottom: 1px solid var(--gray-150); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+.grade-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; font-family: var(--serif); font-weight: 500; font-size: 17px; }
+.grade-a { background: rgba(120,140,93,0.15); color: var(--olive); }
+.grade-b { background: rgba(120,140,93,0.08); color: #5C6F44; }
+.grade-c { background: rgba(217,119,87,0.1); color: var(--clay); }
+.grade-d { background: rgba(176,74,63,0.12); color: var(--rust); }
+.grade-f { background: rgba(176,74,63,0.2); color: var(--rust); }
+.density { font-family: var(--mono); font-size: 12px; color: var(--gray-500); }
+.sev-chip { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 5px; font-weight: 600; letter-spacing: 0.03em; }
+.sev-high   { background: rgba(176,74,63,0.12); color: var(--rust); }
+.sev-medium { background: rgba(217,119,87,0.12); color: var(--clay-d); }
+.sev-low    { background: var(--gray-150); color: var(--gray-700); border: 1px solid var(--gray-300); }
+.sev-skip   { background: var(--gray-150); color: var(--gray-500); border: 1px solid var(--gray-300); font-style: italic; }
+
+.before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 640px) { .before-after { grid-template-columns: 1fr; } }
+.ba-card { background: var(--white); border: var(--border); border-radius: var(--radius-panel); padding: 20px 22px; }
+.ba-card.before { border-top: 3px solid var(--rust); }
+.ba-card.after  { border-top: 3px solid var(--olive); }
+.ba-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 10px; }
+.ba-card.before .ba-label { color: var(--rust); }
+.ba-card.after  .ba-label { color: var(--olive); }
+.ba-grade { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--gray-500); margin-bottom: 12px; }
+.ba-text { font-size: 14px; line-height: 1.65; color: var(--gray-700); font-style: italic; }
+.changes-card { background: var(--white); border: var(--border); border-radius: var(--radius-panel); padding: 18px 22px; }
+.changes-card ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+.changes-card li { font-size: 13.5px; color: var(--gray-700); display: flex; gap: 10px; align-items: flex-start; }
+.changes-card li::before { content: "→"; font-family: var(--mono); color: var(--olive); font-size: 12px; margin-top: 2px; flex-shrink: 0; }
+
+.profile-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+@media (max-width: 640px) { .profile-cards { grid-template-columns: 1fr; } }
+.profile-card { background: var(--white); border: var(--border); border-radius: var(--radius-panel); padding: 18px 20px; }
+.profile-card .profile-name { font-family: var(--serif); font-weight: 500; font-size: 16px; color: var(--slate); margin-bottom: 6px; }
+.profile-card .profile-types { font-family: var(--mono); font-size: 10.5px; color: var(--gray-500); margin-bottom: 10px; }
+.profile-card .profile-desc { font-size: 13px; color: var(--gray-700); line-height: 1.5; }
+
+.rule-num { font-family: var(--mono); font-size: 11px; color: var(--gray-500); background: var(--gray-150); border: 1px solid var(--gray-300); border-radius: 5px; padding: 1px 6px; }
+
+.dev-card { background: var(--white); border: var(--border); border-radius: var(--radius-panel); padding: 22px 26px; display: flex; gap: 18px; align-items: flex-start; }
+.dev-icon { width: 36px; height: 36px; border-radius: 8px; background: var(--oat); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+
+.footer { border-top: var(--border); padding-top: 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+.footer-links { display: flex; gap: 20px; }
+.footer-links a { font-size: 13px; color: var(--gray-500); text-decoration: none; }
+.footer-links a:hover { color: var(--slate); }
+.footer-meta { font-family: var(--mono); font-size: 11px; color: var(--gray-500); }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Claude Code Plugin</div>
+    <h1>iceberg</h1>
+    <p class="hero-subtitle">Named after Hemingway's iceberg theory: the strength of a document comes from what you cut, not what you add.</p>
+    <div class="hero-summary">A Claude Code plugin that scores and edits technical documentation using 14 rules drawn from the Hemingway App, Google Developer Docs, and Microsoft Writing Style Guide.</div>
+  </div>
+
+  <div class="layout">
+    <nav class="toc" id="toc">
+      <div class="toc-label">Contents</div>
+      <a href="#install">Install</a>
+      <a href="#automatic">Automatic mode</a>
+      <a href="#score-report">Score report</a>
+      <a href="#grade-scale">Grade scale</a>
+      <a href="#intent-profiles">Intent profiles</a>
+      <a href="#before-after">Before / after</a>
+      <a href="#14-rules">The 14 rules</a>
+      <a href="#developers">For developers</a>
+    </nav>
+
+    <div class="content">
+
+      <section class="section" id="install">
+        <div class="eyebrow">Getting started</div>
+        <h2>Install</h2>
+        <div class="install-card">
+          <pre><span style="color:var(--gray-500)"># Three commands. Takes under 30 seconds.</span>
+<span style="color:var(--clay)">/plugin marketplace add</span> <span style="color:var(--olive)">gagoar/iceberg</span>
+<span style="color:var(--clay)">/plugin install</span> <span style="color:var(--olive)">iceberg@iceberg</span>
+<span style="color:var(--clay)">/reload-plugins</span></pre>
+        </div>
+        <div class="install-note">After install, iceberg scores every plan Claude produces automatically. No additional setup needed.</div>
+        <div style="margin-top: 24px;">
+          <div class="skill-row">
+            <div class="skill-pill"><span class="dot"></span>/iceberg:score — read-only analysis</div>
+            <div class="skill-pill"><span class="dot green"></span>/iceberg:edit — rewrites inline</div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="automatic">
+        <div class="eyebrow">How it works</div>
+        <h2>What happens automatically</h2>
+        <div class="auto-badge">Runs on every plan</div>
+        <p>After install, <code>/iceberg:score</code> runs on every plan Claude produces before returning it. The score report appears at the top of the response — no user action needed.</p>
+        <p>Two grades appear side by side: an <strong>objective score</strong> (all 14 rules at default severity) and an <strong>intent-adjusted score</strong> (severity tuned to the document's inferred audience). A guide for new users grades differently than a formal API spec, even if they contain the same violations.</p>
+        <p>To rewrite a scored document: run <code>/iceberg:edit path/to/doc.md</code>. The edit skill applies all 14 rules in order and returns the clean document. No annotations. No changelog.</p>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="score-report">
+        <div class="eyebrow">Output</div>
+        <h2>Reading the score report</h2>
+        <div class="code-panel">
+          <pre><span class="fn">ICEBERG SCORE</span> <span class="dim">—</span> <span class="str">deployment-guide.md</span>
+<span class="kw">Assumed intent:</span> conversational onboarding guide
+  <span class="dim">(signals: tutorial-style steps, "you'll learn" phrasing, casual headers)</span>
+
+                  <span class="fn">Objective</span>   <span class="str">Intent-adjusted</span>
+<span class="kw">Grade:</span>               C             <span class="str">A</span>
+<span class="kw">Density:</span>         6.2/100w      <span class="str">1.4/100w</span>   <span class="dim">(target: ≤4.0)</span>
+<span class="kw">Violations:</span>         18             <span class="str">4</span>     <span class="dim">(14 deprioritized for conversational)</span>
+<span class="kw">Word count:</span>      290w
+
+<span class="fn">VIOLATIONS</span>
+
+<span class="kw">Rule 1</span> <span class="dim">— Short sentences  [HIGH / HIGH]  2 violations</span>
+  · <span class="str">"The system fetches the config and validates it, which can take up to 500ms
+    depending on network conditions and cache state."</span> <span class="dim">(34w)</span>
+
+<span class="kw">Rule 9</span> <span class="dim">— Second person  [LOW / </span><span class="str">skip</span><span class="dim">]  2 violations  ← deprioritized for conversational</span>
+  · <span class="str">"we recommend configuring…"</span>
+  · <span class="str">"our team suggests…"</span>
+
+<span class="kw">Rule 13</span> <span class="dim">— Jargon  [MEDIUM / </span><span class="str">HIGH</span><span class="dim">]  3 violations  ← stricter for conversational readers</span>
+  · <span class="str">"idempotent"</span> used without definition
+
+<span class="fn">TOP 3 TO FIX (intent-adjusted):</span> jargon (Rule 13), long sentences (Rule 1), passive voice (Rule 2)
+<span class="dim">Run /iceberg:edit to apply all fixes.</span></pre>
+        </div>
+        <ul class="callout-list">
+          <li><span class="callout-key">Assumed intent</span><span class="callout-val">Inferred from document signals — structure, tone, vocabulary. Override by passing an explicit string: <code>/iceberg:score doc.md "executive summary"</code></span></li>
+          <li><span class="callout-key">Objective / Adjusted</span><span class="callout-val">Objective applies default severities to all 14 rules. Adjusted uses the inferred profile — some rules are deprioritized (skip) or escalated (HIGH) based on audience.</span></li>
+          <li><span class="callout-key">Density</span><span class="callout-val">Weighted violations per 100 words. Makes grades comparable across document lengths — a clean 2,000-word spec and a clean 100-word summary both grade A.</span></li>
+          <li><span class="callout-key">TOP 3 TO FIX</span><span class="callout-val">Prioritized by intent-adjusted severity. Start here when running <code>/iceberg:edit</code>.</span></li>
+        </ul>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="grade-scale">
+        <div class="eyebrow">Scoring</div>
+        <h2>Grade scale</h2>
+        <p style="margin-bottom: 20px;">Grades use violation density — weighted violations per 100 words — so document length doesn't inflate or deflate the score.</p>
+        <table>
+          <thead><tr><th>Grade</th><th>Density (per 100 words)</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="grade-badge grade-a">A</span></td><td><span class="density">≤ 1.0</span></td><td>Publish-ready</td></tr>
+            <tr><td><span class="grade-badge grade-b">B</span></td><td><span class="density">≤ 4.0</span></td><td>Minor cleanup needed</td></tr>
+            <tr><td><span class="grade-badge grade-c">C</span></td><td><span class="density">≤ 8.0</span></td><td>Needs work before sharing</td></tr>
+            <tr><td><span class="grade-badge grade-d">D</span></td><td><span class="density">≤ 15.0</span></td><td>Significant rewrite required</td></tr>
+            <tr><td><span class="grade-badge grade-f">F</span></td><td><span class="density">> 15.0</span></td><td>Start over</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size: 13px; color: var(--gray-500);">Weighted violations = HIGH×2 + MEDIUM×1 + LOW×0.5. Density = weighted ÷ (word count / 100).</p>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="intent-profiles">
+        <div class="eyebrow">Audience</div>
+        <h2>Intent profiles</h2>
+        <p style="margin-bottom: 20px;">The scorer infers intent automatically from structure, tone, and vocabulary. Pass an explicit string to override.</p>
+        <div class="profile-cards">
+          <div class="profile-card">
+            <div class="profile-name">Technical</div>
+            <div class="profile-types">specs · READMEs · API docs · plans</div>
+            <div class="profile-desc">Default severity on all 14 rules. Component names as subjects, code blocks present, formal headers.</div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-name">Conversational</div>
+            <div class="profile-types">guides · tutorials · onboarding</div>
+            <div class="profile-desc">"We built this" is expected. Jargon is penalized harder — readers need definitions. Rules 9, 11, 12 are skipped.</div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-name">Executive</div>
+            <div class="profile-types">summaries · proposals · decks</div>
+            <div class="profile-desc">Buried answers and long paragraphs penalized hard. Jargon and abstract nouns escalated to HIGH.</div>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Rule</th><th>Technical</th><th>Conversational</th><th>Executive</th></tr></thead>
+          <tbody>
+            <tr><td>5 — Concrete nouns</td><td><span class="sev-chip sev-medium">MEDIUM</span></td><td><span class="sev-chip sev-medium">MEDIUM</span></td><td><span class="sev-chip sev-high">HIGH</span></td></tr>
+            <tr><td>8 — Lead with answer</td><td><span class="sev-chip sev-medium">MEDIUM</span></td><td><span class="sev-chip sev-medium">MEDIUM</span></td><td><span class="sev-chip sev-high">HIGH</span></td></tr>
+            <tr><td>9 — Second person</td><td><span class="sev-chip sev-low">LOW</span></td><td><span class="sev-chip sev-skip">skip</span></td><td><span class="sev-chip sev-low">LOW</span></td></tr>
+            <tr><td>11 — Negative framing</td><td><span class="sev-chip sev-low">LOW</span></td><td><span class="sev-chip sev-skip">skip</span></td><td><span class="sev-chip sev-low">LOW</span></td></tr>
+            <tr><td>12 — Short paragraphs</td><td><span class="sev-chip sev-low">LOW</span></td><td><span class="sev-chip sev-skip">skip</span></td><td><span class="sev-chip sev-high">HIGH</span></td></tr>
+            <tr><td>13 — Jargon</td><td><span class="sev-chip sev-medium">MEDIUM</span></td><td><span class="sev-chip sev-high">HIGH</span></td><td><span class="sev-chip sev-high">HIGH</span></td></tr>
+          </tbody>
+        </table>
+        <p style="font-size: 13px; color: var(--gray-500);">"skip" = violation found and reported but excluded from the weighted count.</p>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="before-after">
+        <div class="eyebrow">Example</div>
+        <h2>Before / after</h2>
+        <p style="margin-bottom: 20px;">The same paragraph, before and after <code>/iceberg:edit</code>.</p>
+        <div class="before-after">
+          <div class="ba-card before">
+            <div class="ba-label">Before</div>
+            <div class="ba-grade"><span class="grade-badge grade-d" style="width:22px;height:22px;font-size:13px;">D</span>&nbsp;density 8.0/100w · 8 violations</div>
+            <p class="ba-text">The configuration system was designed in order to facilitate the seamless management of environment-specific settings, and it essentially leverages a hierarchical override mechanism that is quite flexible and arguably one of the most comprehensive solutions available for handling the somewhat complex requirements of modern cloud deployments.</p>
+          </div>
+          <div class="ba-card after">
+            <div class="ba-label">After</div>
+            <div class="ba-grade"><span class="grade-badge grade-a" style="width:22px;height:22px;font-size:13px;">A</span>&nbsp;density 0.8/100w · 0 violations</div>
+            <p class="ba-text">The configuration system manages environment-specific settings through a hierarchical override mechanism. You define values at the base level, then override them per environment. This works well for deployments with hundreds of configuration parameters across staging, production, and preview environments.</p>
+          </div>
+        </div>
+        <div class="changes-card">
+          <div style="font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--gray-500); margin-bottom: 12px;">What changed</div>
+          <ul>
+            <li>1 sentence (67w) split into 3 sentences — 18w, 12w, 19w</li>
+            <li>Passive "was designed" → active "manages"</li>
+            <li>Qualifiers deleted: essentially, quite, very, arguably, tends to, somewhat</li>
+            <li>Complex words removed: "in order to", "leverage", "facilitate"</li>
+            <li>Abstract nouns made concrete: "comprehensive solutions" → mechanism described; "complex requirements" → "hundreds of configuration parameters"</li>
+          </ul>
+        </div>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="14-rules">
+        <div class="eyebrow">Reference</div>
+        <h2>The 14 rules</h2>
+        <p style="margin-bottom: 20px;">Applied in order. Code blocks, inline code, command names, variable names, URLs, and proper nouns are never modified.</p>
+        <table>
+          <thead><tr><th>#</th><th>Rule</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rule-num">1</span></td><td>Short sentences</td><td>Target 15–20 words. Split at 30.</td></tr>
+            <tr><td><span class="rule-num">2</span></td><td>Active voice</td><td>"The server loads the config" — not "The config is loaded"</td></tr>
+            <tr><td><span class="rule-num">3</span></td><td>Strong verbs, no adverbs</td><td>"stalls" — not "runs slowly"</td></tr>
+            <tr><td><span class="rule-num">4</span></td><td>No qualifiers or hedges</td><td>Delete: <em>very, quite, arguably, tends to, could potentially</em></td></tr>
+            <tr><td><span class="rule-num">5</span></td><td>Concrete nouns</td><td>"add a retry loop" — not "implement a comprehensive solution"</td></tr>
+            <tr><td><span class="rule-num">6</span></td><td>One idea per sentence</td><td>Break at "and," "which," or "but" when each side stands alone</td></tr>
+            <tr><td><span class="rule-num">7</span></td><td>Conditions before instructions</td><td>"If the cache is cold, run the script" — not the reverse</td></tr>
+            <tr><td><span class="rule-num">8</span></td><td>Lead with the answer</td><td>Conclusion first. Context follows.</td></tr>
+            <tr><td><span class="rule-num">9</span></td><td>Second person</td><td>"You configure the server" — not "We recommend"</td></tr>
+            <tr><td><span class="rule-num">10</span></td><td>Simple words</td><td>use, help, start, stop — not utilize, facilitate, initiate, terminate</td></tr>
+            <tr><td><span class="rule-num">11</span></td><td>No negative framing</td><td>"Use HTTPS" — not "Don't use HTTP"</td></tr>
+            <tr><td><span class="rule-num">12</span></td><td>Short paragraphs</td><td>2–4 sentences. One topic.</td></tr>
+            <tr><td><span class="rule-num">13</span></td><td>Define or cut jargon</td><td>First use gets an inline definition. Plain equivalent beats jargon.</td></tr>
+            <tr><td><span class="rule-num">14</span></td><td>Measure, don't describe</td><td>"under 100ms" — not "fast"</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <hr class="rule">
+
+      <section class="section" id="developers">
+        <div class="eyebrow">Plugin development</div>
+        <h2>For developers</h2>
+        <div class="dev-card">
+          <div class="dev-icon">⚗️</div>
+          <div>
+            <h3>Testing &amp; calibration</h3>
+            <p style="font-size: 14px; color: var(--gray-700); margin-top: 6px;">The repo ships with a manual test checklist at <code>TESTING.md</code> and calibration fixtures in <code>examples/eval/</code>. Run <code>/iceberg:score examples/eval/violations.md</code> — expect Grade F, all 14 rules flagged. Run <code>/iceberg:score examples/eval/clean.md</code> — expect Grade A, no false positives. Model comparison results (Haiku vs Sonnet accuracy) are in <code>examples/eval/results.md</code>.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        <div class="footer-links">
+          <a href="https://github.com/gagoar/iceberg" target="_blank">github.com/gagoar/iceberg</a>
+          <a href="https://github.com/gagoar" target="_blank">gagoar</a>
+        </div>
+        <div class="footer-meta">MIT license · iceberg v0.1.0</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<script>
+const sections = document.querySelectorAll('section[id]');
+const tocLinks = document.querySelectorAll('.toc a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
