@@ -1,7 +1,8 @@
 ---
 name: score
 description: >
-  Score any technical document against the 14 Hemingway writing rules — without changing it.
+  /iceberg:score — Score a technical document against 14 Hemingway writing rules without
+  changing it. Returns a graded report with violations quoted and a TOP 3 to fix.
 
   ALWAYS run automatically on every plan Claude produces, before any edit is applied.
   This is not optional and requires no user prompt. Run it on every plan, spec, proposal,

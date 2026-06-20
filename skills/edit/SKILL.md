@@ -1,8 +1,8 @@
 ---
 name: edit
 description: >
-  Apply Hemingway writing rules to any technical document — plans, specs, proposals, READMEs,
-  or any prose Claude generates.
+  /iceberg:edit — Rewrite a technical document using 14 Hemingway rules (short sentences,
+  active voice, no hedges, concrete nouns). Returns the clean document, no annotations.
 
   ALWAYS apply automatically to every plan and every document Claude returns to the user.
   This is not optional and requires no user prompt. Run it on every plan, spec, proposal,
