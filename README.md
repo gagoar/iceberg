@@ -6,8 +6,18 @@ Named after Hemingway's iceberg theory: the strength of a document comes from wh
 
 ## Install
 
+Via the [gago-plugins](https://github.com/gagoar/gago-plugins) marketplace:
+
 ```
-/plugin marketplace add gagoar/iceberg
+/plugin marketplace add github:gagoar/gago-plugins
+/plugin install iceberg@gago-plugins
+/reload-plugins
+```
+
+Or standalone:
+
+```
+/plugin marketplace add github:gagoar/iceberg
 /plugin install iceberg@iceberg
 /reload-plugins
 ```
