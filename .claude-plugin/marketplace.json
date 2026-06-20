@@ -8,14 +8,14 @@
   },
   "metadata": {
     "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
-    "version": "0.2.0"
+    "version": "0.2.1"
   },
   "plugins": [
     {
       "name": "iceberg",
       "source": "./",
       "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "gagoar",
         "url": "https://github.com/gagoar"
