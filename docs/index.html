@@ -168,16 +168,21 @@ tr:last-child td { border-bottom: none; }
         <div class="eyebrow">Getting started</div>
         <h2>Install</h2>
         <div class="install-card">
-          <pre><span style="color:var(--gray-500)"># Install</span>
+          <pre><span style="color:var(--gray-500)"># via gago-plugins marketplace (recommended)</span>
+<span style="color:var(--clay)">/plugin marketplace add</span> <span style="color:var(--olive)">gagoar/gago-plugins</span>
+<span style="color:var(--clay)">/plugin install</span> <span style="color:var(--olive)">iceberg@gago-plugins</span>
+<span style="color:var(--clay)">/reload-plugins</span>
+
+<span style="color:var(--gray-500)"># standalone</span>
 <span style="color:var(--clay)">/plugin marketplace add</span> <span style="color:var(--olive)">gagoar/iceberg</span>
 <span style="color:var(--clay)">/plugin install</span> <span style="color:var(--olive)">iceberg@iceberg</span>
 <span style="color:var(--clay)">/reload-plugins</span>
 
-<span style="color:var(--gray-500)"># Update</span>
-<span style="color:var(--clay)">/plugin update</span> <span style="color:var(--olive)">iceberg@iceberg</span>
+<span style="color:var(--gray-500)"># update</span>
+<span style="color:var(--clay)">/plugin update</span> <span style="color:var(--olive)">iceberg@gago-plugins</span>
 <span style="color:var(--clay)">/reload-plugins</span></pre>
         </div>
-        <div class="install-note">After install, iceberg scores every plan Claude produces automatically. Auto-update is off by default — enable it in <code>/plugin</code> → Marketplaces → iceberg.</div>
+        <div class="install-note">After install, iceberg scores every plan Claude produces automatically. Install via gago-plugins to get all gagoar plugins in one marketplace. Auto-update is off by default — enable it in <code>/plugin</code> → Marketplaces → iceberg.</div>
         <div style="margin-top: 24px;">
           <div class="skill-row">
             <div class="skill-pill"><span class="dot"></span>/iceberg:score — read-only analysis</div>
@@ -368,6 +373,7 @@ tr:last-child td { border-bottom: none; }
         <div class="footer-links">
           <a href="https://github.com/gagoar/iceberg" target="_blank">github.com/gagoar/iceberg</a>
           <a href="https://github.com/gagoar" target="_blank">gagoar</a>
+          <a href="https://gagoar.github.io/gago-plugins" target="_blank">gago-plugins hub</a>
         </div>
         <div class="footer-meta">MIT license · iceberg v0.2.0</div>
       </div>

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "iceberg",
   "id": "iceberg",
   "owner": {
