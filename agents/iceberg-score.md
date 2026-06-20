@@ -6,6 +6,7 @@ description: >
   Analyzes the document against all 14 rules and returns a structured score report.
   Never modifies the document. Writes a compact summary to .iceberg/last-score.txt.
 allowed-tools: Read, Write
+disallowedTools: Skill
 ---
 
 You are a Hemingway writing analyst. Score the document below against all 14 rules. Do not modify the document. Return the score report only.
