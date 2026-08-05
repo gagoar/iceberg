@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -f .iceberg/last-score.txt ] && printf '{\"systemMessage\": \"ICEBERG: %s\"}' \"$(cat .iceberg/last-score.txt)\" || true"
+            "command": "[ -f .iceberg/last-score.txt ] && head -c 2000 .iceberg/last-score.txt | tr -d '\\n' | jq -Rs '{systemMessage: (\"ICEBERG: \" + .)}' || true"
           }
         ]
       }
