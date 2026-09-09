@@ -5,7 +5,8 @@ description: >
   Internal Hemingway scorer. Spawned by /iceberg:score for documents over 500 words.
   Analyzes the document against all 14 rules and returns a structured score report.
   Never modifies the document. Writes a compact summary to .iceberg/last-score.txt.
-  Accepts optional flags for two extended rules, off by default: --no-em-dash, --no-weakeners.
+  Accepts optional flags for three extended rules, off by default: --no-em-dash,
+  --no-weakeners, --strip-ai-commentary.
 allowed-tools: Read, Write
 disallowedTools: Skill
 ---
@@ -93,6 +94,8 @@ For each of the 14 rules, identify every violation. Report the rule, severity, c
 **Rule 15 — No em dashes** (`--no-em-dash`): Flag every em dash (—), quote the sentence. Leave the fix to `/iceberg:edit`.
 
 **Rule 16 — No mid-document weakeners** (`--no-weakeners`): Flag a clause that concedes uncertainty about a claim just made, outside a section explicitly labeled Limitations, Caveats, Risks, or Open questions. Signal phrases: *we're still figuring this out, take this with a grain of salt, no promises, could be wrong here, this might not hold up, don't quote us on this, fingers crossed*. A hedge inside a labeled Limitations/Caveats/Risks section is not a violation. Distinct from Rule 4 (single hedge words) — this is a whole clause undercutting the sentence around it.
+
+**Rule 17 — No AI commentary** (`--strip-ai-commentary`): Flag self-referential assistant voice ("I've added...", "let me know if...", "I hope this helps", "as requested", "based on our conversation", "great question!", "certainly!" as a sentence opener) and dev-cycle narration ("in this PR...", "we then implemented...", "the next step was to...", "as discussed", "in this session...", a bare "TODO"/"WIP" left in prose). Do NOT flag in-document cross-references ("see the Setup section above") — only flag reference to the conversation or development process behind the document. Same Changelog exception as Rule 16.
 
 If a flag is absent from [FLAGS], skip that rule entirely — no scan, no "0 violations" line, no contribution to density or the TOP 3.
 

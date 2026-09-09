@@ -39,7 +39,7 @@ Two skills ship with iceberg:
 
 **`/iceberg:edit`** rewrites the document inline using those same 14 rules. It applies them in order and returns the clean document. No annotations. No changelog.
 
-Both skills run automatically on every plan Claude produces. No setup needed after install. Two more rules — stripping em dashes and mid-document statements that weaken a claim — exist as opt-in flags; see [Extended rules](#extended-rules-opt-in). Neither runs automatically.
+Both skills run automatically on every plan Claude produces. No setup needed after install. Three more rules — stripping em dashes, mid-document statements that weaken a claim, and self-referential AI/dev-cycle commentary — exist as opt-in flags; see [Extended rules](#extended-rules-opt-in). None of the three runs automatically.
 
 ## What happens automatically
 
@@ -59,7 +59,7 @@ After install, every plan Claude generates is scored before it reaches you. The 
 
 **Score with the extended rules on** (off by default — see [Extended rules](#extended-rules-opt-in)):
 ```
-/iceberg:score path/to/document.md --no-em-dash --no-weakeners
+/iceberg:score path/to/document.md --no-em-dash --no-weakeners --strip-ai-commentary
 ```
 
 **Edit a file:**
@@ -69,9 +69,9 @@ After install, every plan Claude generates is scored before it reaches you. The 
 
 **Edit with the extended rules on:**
 ```
-/iceberg:edit path/to/document.md --no-em-dash --no-weakeners
+/iceberg:edit path/to/document.md --no-em-dash --no-weakeners --strip-ai-commentary
 ```
-Either flag works alone too.
+Any flag works alone too.
 
 **Edit pasted text:**
 ```
@@ -179,14 +179,17 @@ What changed: 1 sentence (67w) → 3 sentences. Passive voice fixed. Adverbs rem
 
 ## Extended rules (opt-in)
 
-Two more rules exist outside the core 14. Neither runs unless you pass its flag — they make tone/content calls the core 14 don't, and not every document should have them forced on.
+Three more rules exist outside the core 14. None runs unless you pass its flag — they make tone/content calls the core 14 don't, and not every document should have them forced on.
 
 | Flag | Rule | Example |
 |------|------|---------|
 | `--no-em-dash` | No em dashes | "Ship it, but test it first." — not "Ship it — but test it first." |
 | `--no-weakeners` | No mid-document weakeners | Delete or relocate-to-Limitations a clause that undercuts a claim the document just made — "we're still figuring this out," "take this with a grain of salt" — mid-flow. |
+| `--strip-ai-commentary` | No AI commentary | "The client retries failed requests." — not "I've added retry logic — let me know if you want changes." Strips self-referential assistant voice and dev-cycle narration ("in this PR...", "we then implemented..."). |
 
 `--no-weakeners` doesn't touch single hedge words (that's Rule 4) or anything inside a section actually labeled Limitations, Caveats, Risks, or Open questions — a caveat in the right place isn't a violation, it's the document being honest about scope.
+
+`--strip-ai-commentary` doesn't touch legitimate in-document cross-references ("see the Setup section above") — only reference to the conversation or development process that produced the document. Both `--no-weakeners` and `--strip-ai-commentary` exempt genuine Changelog/release-notes documents, where change-history framing is the point.
 
 ## What it doesn't touch
 

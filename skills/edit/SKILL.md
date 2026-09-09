@@ -17,14 +17,16 @@ description: >
   Use intent to preserve voice while applying rules (e.g., "formal engineering spec",
   "conversational onboarding guide").
 
-  Two opt-in extended rules, off by default: --no-em-dash strips every em dash;
+  Three opt-in extended rules, off by default: --no-em-dash strips every em dash;
   --no-weakeners strips mid-document statements that undercut a claim the document
-  just made (outside a labeled Limitations/Caveats section).
+  just made (outside a labeled Limitations/Caveats section); --strip-ai-commentary
+  strips self-referential assistant voice and dev-cycle narration so the document
+  reads as a finished product, not a transcript of the work that produced it.
 
   Rewrites with inline replacements. No annotations. No changelog. Returns only the clean document.
 
   For documents over 500 words, spawn the iceberg-edit agent to preserve the main context window.
-argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [optional: intent description]"
+argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [optional: intent description]"
 allowed-tools: Read, Write, Agent
 ---
 
@@ -38,7 +40,7 @@ These rules apply to documentation, plans, proposals, READMEs, and any prose. Th
 
 - `/iceberg:edit <file-path>` — read the file, apply rules, write it back in place. Resolve relative paths from the current working directory.
 - `/iceberg:edit <file-path> "intent description"` — edit while preserving the intended voice
-- `/iceberg:edit <file-path> --no-em-dash --no-weakeners` — also apply the opt-in extended rules (either flag alone is valid too)
+- `/iceberg:edit <file-path> --no-em-dash --no-weakeners --strip-ai-commentary` — also apply the opt-in extended rules (any combination, including one alone)
 - `/iceberg:edit` — user pastes text; return the rewritten version
 - **Automatic** — apply to every plan and output document before returning it to the user. The automatic pass runs the core 14 rules only — the extended rules require an explicit flag, every time, even on auto-applied edits.
 
@@ -144,10 +146,23 @@ Remove a sentence or clause that concedes uncertainty about a claim the document
 - Pure filler with no content: delete outright. "We think this should work, but who knows." → delete, or state the claim plainly if it belongs in the document at all.
 - Signal phrases: *we're still figuring this out, take this with a grain of salt, no promises, could be wrong here, this might not hold up, don't quote us on this, fingers crossed*.
 
+### 17. No AI commentary — flag `--strip-ai-commentary`
+Remove self-referential assistant voice and process narration — anything revealing this document came out of a request-and-response exchange or a development effort, instead of reading as a standalone product artifact for a reader who was part of neither.
+
+Two sub-patterns, both in scope:
+- **Assistant self-reference**: "I've added/created/implemented/fixed...", "I'll now...", "Let me know if you'd like any changes", "Feel free to ask if anything's unclear", "I hope this helps", "As requested/per your request", "Based on our conversation", "Great question!", "Certainly! / Sure! / Of course!" as a sentence opener, "Here's a summary of what I did/changed."
+- **Dev-cycle narration**: "In this PR/commit/change...", "We then implemented/added/built...", "The next step was to...", "As discussed / as mentioned earlier / per our conversation", "In this session / during this work...", a bare "TODO" / "WIP" / "draft — needs review" left in shipped prose.
+
+Rewrite each hit as a statement about the product, not the work: "I've added retry logic to the client" → "The client retries failed requests." "Let me know if you want this expanded" → delete, or if there's a real open question, name it plainly as a question rather than an offer to keep talking.
+
+**Do not touch legitimate in-document cross-references** — "see the Setup section above," "as shown in Table 2" — those orient a reader inside the document itself and don't reveal how the document was made. Only remove reference to the conversation or development process behind it.
+
+**What survives:** a genuine Changelog/release-notes document (same exception as Rule 16), and attribution a reader actually needs (an owner to contact, where to file issues).
+
 ## Editing Process
 
 1. Read the full document before changing anything.
-2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15/16 only if their flag was passed — apply them last, after the core 14, since they operate on clause- and punctuation-level content the core rules may have just rewritten.
+2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15–17 only if their flag was passed — apply them last, after the core 14, since they operate on clause- and punctuation-level content the core rules may have just rewritten.
 3. Never change: code blocks, inline code, commands, variable names, URLs, proper nouns.
 4. Do not add content. Cut, simplify, and restructure only.
 5. Preserve all headings, lists, tables, and document structure.
