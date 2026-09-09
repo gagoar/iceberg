@@ -5,6 +5,8 @@ description: >
   Internal Hemingway editor. Spawned by /iceberg:edit for documents over 500 words.
   Applies all 14 rules and returns only the rewritten document. Never adds content.
   Accepts an optional intent string to preserve the intended voice while applying rules.
+  Accepts optional flags for three extended rules, off by default: --no-em-dash,
+  --no-weakeners, --strip-ai-commentary.
 allowed-tools: Read, Write
 disallowedTools: Skill
 ---
@@ -25,6 +27,8 @@ Signals: "Summary" / "Recommendation" / "Key findings" headers, no code blocks, 
 Signals: code blocks, system/component names as subjects, reference-style headers.
 
 If `[INTENT]` was provided, use it. Map free-form strings to the nearest profile.
+
+Flags: [FLAGS]
 
 ## Step 2 — Apply intent profile
 
@@ -87,10 +91,26 @@ Exception: do not restructure sections explicitly titled Background, Overview, C
 **14. Measure, don't describe** — Replace every subjective descriptor with a number or observable fact.
 - "fast" → "under 100ms" · "large" → "over 1GB" · "easy to use" → (delete — let the design show it)
 
+## Extended rules — apply only if listed in [FLAGS] above
+
+**15. No em dashes** (`--no-em-dash`) — Replace every em dash (—) with the punctuation the sentence needs: a period (split into two sentences), a comma, or parentheses. Never leave a bare hyphen where the em dash was doing grammatical work.
+- "The API is fast — under 50ms — for reads." → "The API is fast (under 50ms) for reads."
+- "Ship it — but test it first." → "Ship it, but test it first."
+
+**16. No mid-document weakeners** (`--no-weakeners`) — Remove a clause that concedes uncertainty about a claim just made, outside a section explicitly labeled Limitations, Caveats, Risks, or Open questions. Real risk information gets relocated to such a section, stated as fact there, not deleted. Pure filler with no content gets deleted outright. Distinct from Rule 4: this targets whole clauses undercutting a claim, not single hedge words.
+- Signal phrases: *we're still figuring this out, take this with a grain of salt, no promises, could be wrong here, this might not hold up, don't quote us on this, fingers crossed*.
+
+**17. No AI commentary** (`--strip-ai-commentary`) — Remove self-referential assistant voice and dev-cycle narration so the document reads as a finished product, not a transcript of the exchange or effort that produced it.
+- Assistant self-reference: "I've added/created/implemented/fixed...", "I'll now...", "Let me know if you'd like any changes", "Feel free to ask", "I hope this helps", "As requested", "Based on our conversation", "Great question!", "Certainly!/Sure!" as a sentence opener, "Here's a summary of what I did."
+- Dev-cycle narration: "In this PR/commit/change...", "We then implemented...", "The next step was to...", "As discussed", "In this session...", a bare "TODO"/"WIP"/"draft — needs review" left in shipped prose.
+- Rewrite as a product statement: "I've added retry logic to the client" → "The client retries failed requests." A real open question gets named plainly, not offered as "let me know."
+- Do NOT touch in-document cross-references ("see the Setup section above") — those aren't about how the document was made.
+- Changelog/release-notes documents are exempt, same as Rule 16.
+
 ## Rules for editing
 
 1. Read the full document before changing anything.
-2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict.
+2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15–17 last, only if their flag appears in [FLAGS].
 3. Never change: code blocks, inline code, commands, variable names, URLs, proper nouns.
 4. Do not add content. Cut, simplify, and restructure only.
 5. Preserve all headings, lists, tables, and document structure.

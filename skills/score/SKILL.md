@@ -15,7 +15,12 @@ description: >
 
   Returns a structured violation report with grade, per-rule counts, and quoted offenders.
   Never modifies the document.
-argument-hint: "[file-path or paste text] [optional: intent description]"
+
+  Three opt-in extended rules, off by default and excluded from the report unless flagged:
+  --no-em-dash (Rule 15), --no-weakeners (Rule 16, mid-document statements that undercut
+  a claim outside a labeled Limitations/Caveats section), --strip-ai-commentary (Rule 17,
+  self-referential assistant voice and dev-cycle narration).
+argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [optional: intent description]"
 allowed-tools: Read, Write, Agent
 ---
 
@@ -27,10 +32,13 @@ Score a document against the 14 Hemingway rules. Read only — never modify the 
 
 - `/iceberg:score <file-path>` — read the file, score it, print the report. Resolve relative paths from the current working directory.
 - `/iceberg:score <file-path> "intent: formal engineering spec"` — score with intent context
+- `/iceberg:score <file-path> --no-em-dash --no-weakeners --strip-ai-commentary` — also scan for the opt-in extended rules (any combination, including one alone)
 - `/iceberg:score` — user pastes text; score and return the report
-- **Automatic** — score every plan and output document before returning it to the user
+- **Automatic** — score every plan and output document before returning it to the user. The automatic pass scores the core 14 rules only — extended rules need an explicit flag, every time, even on auto-triggered scores.
 
 The optional intent argument overrides the inferred profile. Pass one of: `"technical"`, `"conversational"`, or `"executive"`, or a free-form string the scorer maps to the nearest profile.
+
+Extended rules (15, 16, 17) are scanned and reported only when their flag is present. Without the flag, don't scan for them at all — an unflagged report looks exactly like it did before these rules existed.
 
 **Skip:** code-only responses, shell output, error messages, stack traces, files under `vendor/`, `node_modules/`, or `dist/`, any document under 50 words. If auto-triggered on a document under 50 words, return it unchanged with no comment.
 
@@ -75,6 +83,16 @@ The optional intent argument overrides the inferred profile. Pass one of: `"tech
 
 **14 — Measure, don't describe [HIGH]:** Flag subjective descriptors without a number: *fast, large, easy, good, high, low, significant, reasonable, permissive, well, flexible, comprehensive, robust*.
 
+## Extended rules — opt-in, scanned only when flagged
+
+**15 — No em dashes [flag: `--no-em-dash`]:** Flag every em dash (—). Report each occurrence with its sentence quoted; don't guess the fix in the score report, that's `/iceberg:edit`'s job.
+
+**16 — No mid-document weakeners [flag: `--no-weakeners`]:** Flag a clause that concedes uncertainty about a claim just made, when it sits outside a section explicitly labeled Limitations, Caveats, Risks, or Open questions. Signal phrases: *we're still figuring this out, take this with a grain of salt, no promises, could be wrong here, this might not hold up, don't quote us on this, fingers crossed*. Distinct from Rule 4: Rule 4 is single hedge words inside a confident sentence; Rule 16 is a whole clause undercutting the sentence around it. A hedge inside a labeled Limitations/Caveats/Risks section is not a violation — that's the section doing its job.
+
+**17 — No AI commentary [flag: `--strip-ai-commentary`]:** Flag self-referential assistant voice ("I've added...", "let me know if...", "I hope this helps", "as requested", "great question!") and dev-cycle narration ("in this PR...", "we then implemented...", "as discussed", "in this session", a bare "TODO"/"WIP" left in prose). Do NOT flag legitimate in-document cross-references ("see the Setup section above") — those don't reveal how the document was made. Same Changelog exception as Rule 16.
+
+When none of these flags are passed, skip all three rules entirely — don't scan for them, don't report "0 violations," don't include them in density or the TOP 3. The report should look identical to a pre-extended-rules report.
+
 ## Score report format
 
 ```
@@ -104,9 +122,16 @@ Rule 13 — Jargon  [MEDIUM / HIGH]  3 violations  ← stricter for conversation
 
 [continue for all 14 rules — format: [objective / intent-adjusted]]
 
+[if any of --no-em-dash / --no-weakeners / --strip-ai-commentary were passed, append their rules after Rule 14, same format:]
+Rule 15 — No em dashes  [flag: --no-em-dash]  3 violations
+  · "The API is fast — under 50ms — for reads."
+  · … 2 more
+
 TOP 3 TO FIX (intent-adjusted): jargon (Rule 13), long sentences (Rule 1), passive voice (Rule 2)
 Run /iceberg:edit to apply all fixes.
 ```
+
+Extended-rule violations count toward density and the TOP 3 only when their flag was passed for this run.
 
 ## Grade scale (density: violations per 100 words)
 
@@ -135,7 +160,7 @@ The scorer infers intent automatically. Pass an explicit intent to override.
 
 ## Long documents (over 500 words)
 
-Spawn the `iceberg-score` agent with the full document and intent string. Return the agent's output as the final result.
+Spawn the `iceberg-score` agent with the full document, the intent string, and which extended-rule flags (`--no-em-dash`, `--no-weakeners`, `--strip-ai-commentary`, if any) were passed. Return the agent's output as the final result.
 
 ## After the report
 
