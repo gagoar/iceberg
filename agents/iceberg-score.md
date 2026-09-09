@@ -5,6 +5,7 @@ description: >
   Internal Hemingway scorer. Spawned by /iceberg:score for documents over 500 words.
   Analyzes the document against all 14 rules and returns a structured score report.
   Never modifies the document. Writes a compact summary to .iceberg/last-score.txt.
+  Accepts optional flags for two extended rules, off by default: --no-em-dash, --no-weakeners.
 allowed-tools: Read, Write
 disallowedTools: Skill
 ---
@@ -25,6 +26,8 @@ Signals: headers like "Summary", "Executive Summary", "Recommendation", "Key fin
 Signals: code blocks present; component/system/API names as sentence subjects; reference-style headers; technical terminology used without apology.
 
 If `[INTENT]` was provided by the caller, use that instead of inferring. Map free-form intent strings to the nearest profile.
+
+Flags: [FLAGS]
 
 ## Step 2 — Score twice
 
@@ -85,6 +88,14 @@ For each of the 14 rules, identify every violation. Report the rule, severity, c
 
 **Deduplication:** Word triggering both Rule 3 and Rule 4 → count under Rule 4 only. Sentence triggering both Rule 1 and Rule 6 → count under Rule 1 only.
 
+## Extended rules — scan only if listed in [FLAGS] above
+
+**Rule 15 — No em dashes** (`--no-em-dash`): Flag every em dash (—), quote the sentence. Leave the fix to `/iceberg:edit`.
+
+**Rule 16 — No mid-document weakeners** (`--no-weakeners`): Flag a clause that concedes uncertainty about a claim just made, outside a section explicitly labeled Limitations, Caveats, Risks, or Open questions. Signal phrases: *we're still figuring this out, take this with a grain of salt, no promises, could be wrong here, this might not hold up, don't quote us on this, fingers crossed*. A hedge inside a labeled Limitations/Caveats/Risks section is not a violation. Distinct from Rule 4 (single hedge words) — this is a whole clause undercutting the sentence around it.
+
+If a flag is absent from [FLAGS], skip that rule entirely — no scan, no "0 violations" line, no contribution to density or the TOP 3.
+
 ## Output format
 
 ```
@@ -108,6 +119,10 @@ Rule 9 — Second person  [LOW / skip]  [N] violations  ← deprioritized for [p
 
 [continue for all 14 rules — format: [objective severity / intent-adjusted severity]]
 [show "0 violations" with [— / —] for clean rules]
+
+[if [FLAGS] included --no-em-dash and/or --no-weakeners, append their rules after Rule 14:]
+Rule 15 — No em dashes  [flag: --no-em-dash]  [N] violations
+  · [quoted sentence]
 
 TOP 3 TO FIX (intent-adjusted): [rule], [rule], [rule]
 Run /iceberg:edit to apply all fixes.

@@ -55,7 +55,24 @@ Compare output to `examples/before-after.md`.
 **Pass:** Long sentences split, passive voice converted, adverbs removed, abstract nouns made concrete.
 **Fail:** Output contains sentences over 30 words, or passive voice from the original remains.
 
-## 7. Model comparison (Haiku vs Sonnet)
+## 7. Extended-rules opt-in test
+
+```
+/iceberg:score examples/violations.md
+/iceberg:score examples/violations.md --no-em-dash --no-weakeners
+```
+
+**Pass:** The first run's report has no Rule 15/16 entries at all — not even "0 violations." The second run adds Rule 15 and/or Rule 16 entries (if the fixture has matching content) and factors them into density and the TOP 3.
+**Fail:** Rule 15/16 appear without the flag, or don't appear with it.
+
+```
+/iceberg:edit examples/violations.md --no-em-dash
+```
+
+**Pass:** Every em dash in the output is gone, replaced with a period, comma, or parentheses — never a bare hyphen that changes meaning. Core 14 fixes (from test 6) still apply.
+**Fail:** An em dash survives, or a hyphen replaces one without preserving the sentence's meaning.
+
+## 8. Model comparison (Haiku vs Sonnet)
 
 Run each eval document with Haiku (the default) and record results in `examples/eval/results.md`.
 
