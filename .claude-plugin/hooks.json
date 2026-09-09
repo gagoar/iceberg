@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "[ -f .iceberg/last-score.txt ] && head -c 2000 .iceberg/last-score.txt | tr -d '\\n' | jq -Rs '{systemMessage: (\"ICEBERG: \" + .)}' || true"
+            "command": "[ -f .iceberg/last-score.txt ] && head -c 2000 .iceberg/last-score.txt | jq -Rs '{systemMessage: (\"ICEBERG: \" + (gsub(\"\\n\"; \"\") | .[0:2000]))}' || true"
           }
         ]
       }
