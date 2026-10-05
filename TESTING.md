@@ -98,7 +98,39 @@ CMD=$(jq -r '.hooks.Stop[0].hooks[0].command' .claude-plugin/hooks.json)
 **Missing file** — ensure `.iceberg/last-score.txt` doesn't exist, then `sh -c "$CMD"`.
 **Pass:** exits 0, no output.
 
-## 9. Model comparison (Haiku vs Sonnet)
+## 9. Jargon list (Rule 18)
+
+Fixtures: `examples/jargon/sample.md` and `examples/jargon/jargon.txt`. Start each test with no `.iceberg/jargon.txt`, except where stated.
+
+**No-op.** Run `/iceberg:score examples/violations.md` with no list and no flag.
+**Pass:** no Rule 18 entry, not even "0 violations." Grade matches the baseline from test 3.
+**Fail:** Rule 18 appears, or the grade changes.
+
+**Score hits.** `mkdir -p .iceberg && cp examples/jargon/jargon.txt .iceberg/`, then `/iceberg:score examples/jargon/sample.md`.
+**Pass:** Rule 18 flags `leverage` (→ use), `move the needle` (→ improve conversion rate), `Headwinds` (→ obstacles), `touch base` (delete), and `synergy` (delete). It does NOT flag `Going forward` (excluded by `!going forward`), the inline `leverage()`, or the quoted "leverage the cache". Rule 13 does not count those terms again.
+**Fail:** a code or quoted occurrence is flagged, `Going forward` is flagged, or a listed term is missed.
+
+**Edit.** With the list in place, run `/iceberg:edit` on a copy of `examples/jargon/sample.md`.
+**Pass:** no listed term survives in prose. Replacements match the file ("leverage" → "use"). The two sentences with bare entries still read as grammatical. Inline `leverage()` and the quoted text are unchanged.
+**Fail:** a listed term remains, a sentence broke, or code or quoted text changed.
+
+**Pack flag.** Remove `.iceberg/jargon.txt`, then `/iceberg:score examples/jargon/sample.md --jargon=finance`.
+**Pass:** only finance-pack terms are flagged (`Headwinds`, `Going forward`). `leverage` and `synergy` are not.
+**Fail:** terms outside the finance pack are flagged.
+
+**Override and exclusion.** Write `.iceberg/jargon.txt` with `@pack finance` and `!headwinds`.
+**Pass:** `Headwinds` is not flagged. `Going forward` is.
+**Fail:** `Headwinds` is flagged.
+
+**Interview.** Run `/iceberg:jargon`, then `/iceberg:jargon healthcare`.
+**Pass:** the first run asks for an industry and writes `.iceberg/jargon.txt` only after confirmation. The second drafts 30–50 entries, asks for confirmation, and saves them literally with no `@pack` line.
+**Fail:** a file is written without confirmation, or the healthcare list saves an `@pack` line.
+
+**Long document.** Paste `examples/jargon/sample.md` repeated until it passes 500 words, then run the score and edit tests again.
+**Pass:** same results as the short document. The agents receive the merged list in `[JARGON]` and read no list file.
+**Fail:** results differ, or an agent tries to read `.iceberg/jargon.txt`.
+
+## 10. Model comparison (Haiku vs Sonnet)
 
 Run each eval document with Haiku (the default) and record results in `examples/eval/results.md`.
 

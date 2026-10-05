@@ -1,0 +1,43 @@
+# marketing pack: brand and growth-speak with plain replacements
+# format: term => replacement   (bare term = delete and repair the sentence)
+synergize => work together
+leverage => use
+brand equity => brand reputation
+brand voice => tone of writing
+thought leadership => expert articles
+thought leader => expert
+influencer => creator
+engagement => replies, clicks, or shares
+touchpoint => contact
+customer journey => steps a customer takes
+funnel => sales path
+top of funnel => first contact
+bottom of funnel => ready to buy
+omnichannel => on every channel
+multichannel => on several channels
+cross-channel => across channels
+360-degree => full
+holistic => complete
+authentic => genuine
+storytelling => telling the story
+share of voice => share of mentions
+mindshare => attention
+eyeballs => viewers
+viral => widely shared
+organic reach => unpaid reach
+growth hack => growth tactic
+growth hacking => growth tactics
+moving forward
+best-in-class => best
+world-class => excellent
+disruptive => new
+ideate => brainstorm
+activate => launch
+amplify => spread
+double down => commit more
+low-hanging fruit => easy wins
+value proposition => what the customer gets
+unique selling proposition => what sets us apart
+pain point => problem
+deliverable => output
+align on => agree on

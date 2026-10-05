@@ -23,11 +23,15 @@ description: >
   strips self-referential assistant voice and dev-cycle narration so the document
   reads as a finished product, not a transcript of the work that produced it.
 
+  Jargon list (Rule 18): if .iceberg/jargon.txt exists, its words are replaced or removed
+  automatically. --jargon=<pack> adds a bundled industry pack (technology, finance,
+  marketing, corporate, legal) for one run. Build the list with /iceberg:jargon.
+
   Rewrites with inline replacements. No annotations. No changelog. Returns only the clean document.
 
   For documents over 500 words, spawn the iceberg-edit agent to preserve the main context window.
-argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [optional: intent description]"
-allowed-tools: Read, Write, Agent
+argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [--jargon=<pack>] [optional: intent description]"
+allowed-tools: Read, Write, Glob, Agent
 ---
 
 # Iceberg Editor
@@ -41,8 +45,9 @@ These rules apply to documentation, plans, proposals, READMEs, and any prose. Th
 - `/iceberg:edit <file-path>` — read the file, apply rules, write it back in place. Resolve relative paths from the current working directory.
 - `/iceberg:edit <file-path> "intent description"` — edit while preserving the intended voice
 - `/iceberg:edit <file-path> --no-em-dash --no-weakeners --strip-ai-commentary` — also apply the opt-in extended rules (any combination, including one alone)
+- `/iceberg:edit <file-path> --jargon=finance,legal` — also drop words from the named bundled packs for this run
 - `/iceberg:edit` — user pastes text; return the rewritten version
-- **Automatic** — apply to every plan and output document before returning it to the user. The automatic pass runs the core 14 rules only — the extended rules require an explicit flag, every time, even on auto-applied edits.
+- **Automatic** — apply to every plan and output document before returning it to the user. The automatic pass runs the core 14 rules only — the extended rules require an explicit flag, every time, even on auto-applied edits. Rule 18 is the one exception: it runs on the automatic pass whenever `.iceberg/jargon.txt` exists, because the file is the user's standing opt-in.
 
 If no intent is provided, infer it from document signals before editing. Three profiles: **technical** (default), **conversational** (guides/tutorials — skip Rules 9, 11, 12), **executive** (summaries/proposals — treat Rules 5, 8, 12, 13 as HIGH priority). Pass intent, inferred profile, and any extended-rule flags through to the subagent for long documents.
 
@@ -159,10 +164,34 @@ Rewrite each hit as a statement about the product, not the work: "I've added ret
 
 **What survives:** a genuine Changelog/release-notes document (same exception as Rule 16), and attribution a reader actually needs (an owner to contact, where to file issues).
 
+## Rule 18 — Banned jargon (user list)
+
+Runs when `.iceberg/jargon.txt` exists in the working directory, or when `--jargon=<pack>[,<pack>]` is passed. With neither, skip it entirely.
+
+### Loading the list
+
+Build one merged list before editing:
+
+1. Start empty.
+2. For each pack named by an `@pack <name>` line in `.iceberg/jargon.txt`, then by `--jargon=`, read `skills/jargon/packs/<name>.txt` and add its entries. Try `${CLAUDE_PLUGIN_ROOT}/skills/jargon/packs/<name>.txt` first. If that does not resolve, Glob for `**/skills/jargon/packs/<name>.txt`. If a pack cannot be found, say so in one line and continue without it.
+3. Add the entries from `.iceberg/jargon.txt` itself. A later entry replaces an earlier entry for the same term.
+4. Remove every term named by a `!term` line.
+
+Entry format: `term => replacement` replaces. A bare `term` deletes. Lines starting with `#` are comments. Format details live in `skills/jargon/SKILL.md`.
+
+### Applying the list
+
+- Match whole words and phrases, ignoring case. Inflections match: `leverage` also catches *leveraged* and *leveraging*. Inflect the replacement to fit: "we leveraged the cache" → "we used the cache".
+- Replace with the given replacement. A replacement containing `<placeholder>` text (for example `improve <metric>`) needs a real value from the document. If the document has none, use the nearest plain wording without the placeholder.
+- For a bare entry, delete the word or phrase and rewrite the sentence so it still parses and keeps its meaning. Deleting the word alone is not enough.
+- Apply Rule 18 last, after Rules 1–17, so an earlier rewrite cannot bring a listed word back.
+- Never change code blocks, inline code, URLs, proper nouns, or text inside quotation marks.
+- Do not add content beyond what a replacement or sentence repair needs.
+
 ## Editing Process
 
 1. Read the full document before changing anything.
-2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15–17 only if their flag was passed — apply them last, after the core 14, since they operate on clause- and punctuation-level content the core rules may have just rewritten.
+2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15–17 only if their flag was passed — apply them last, after the core 14, since they operate on clause- and punctuation-level content the core rules may have just rewritten. Apply Rule 18 after those, if it is active.
 3. Never change: code blocks, inline code, commands, variable names, URLs, proper nouns.
 4. Do not add content. Cut, simplify, and restructure only.
 5. Preserve all headings, lists, tables, and document structure.
@@ -170,4 +199,4 @@ Rewrite each hit as a statement about the product, not the work: "I've added ret
 
 ## Long Documents (over 500 words)
 
-Spawn the `iceberg-edit` agent. Pass it the full document text, the intent string (if provided), and which extended-rule flags (if any) were passed. Return the agent's output verbatim as the final result.
+Spawn the `iceberg-edit` agent. Pass it the full document text, the intent string (if provided), which extended-rule flags (if any) were passed, and the merged jargon list as a `[JARGON]` block (one `term => replacement` or bare `term` per line, already resolved). The skill loads and merges the list so the agent does not parse files. If Rule 18 is inactive, pass `[JARGON]` as empty. Return the agent's output verbatim as the final result.

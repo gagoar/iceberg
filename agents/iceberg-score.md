@@ -6,7 +6,8 @@ description: >
   Analyzes the document against all 14 rules and returns a structured score report.
   Never modifies the document. Writes a compact summary to .iceberg/last-score.txt.
   Accepts optional flags for three extended rules, off by default: --no-em-dash,
-  --no-weakeners, --strip-ai-commentary.
+  --no-weakeners, --strip-ai-commentary. Accepts an optional merged jargon list
+  ([JARGON]) and scans for it as Rule 18.
 allowed-tools: Read, Write
 disallowedTools: Skill
 ---
@@ -29,6 +30,8 @@ Signals: code blocks present; component/system/API names as sentence subjects; r
 If `[INTENT]` was provided by the caller, use that instead of inferring. Map free-form intent strings to the nearest profile.
 
 Flags: [FLAGS]
+
+Jargon list: [JARGON]
 
 ## Step 2 — Score twice
 
@@ -87,7 +90,7 @@ For each of the 14 rules, identify every violation. Report the rule, severity, c
 
 **Rule 13 — Jargon:** Do NOT flag universally known abbreviations (HTTP, HTTPS, JSON, YAML, SQL, API, URL, REST). Flag domain-specific terms (PromQL, etcd, canary rollout, idempotent, TTL).
 
-**Deduplication:** Word triggering both Rule 3 and Rule 4 → count under Rule 4 only. Sentence triggering both Rule 1 and Rule 6 → count under Rule 1 only.
+**Deduplication:** Word triggering both Rule 3 and Rule 4 → count under Rule 4 only. Sentence triggering both Rule 1 and Rule 6 → count under Rule 1 only. Term triggering both Rule 13 and Rule 18 → count under Rule 18 only.
 
 ## Extended rules — scan only if listed in [FLAGS] above
 
@@ -98,6 +101,18 @@ For each of the 14 rules, identify every violation. Report the rule, severity, c
 **Rule 17 — No AI commentary** (`--strip-ai-commentary`): Flag self-referential assistant voice ("I've added...", "let me know if...", "I hope this helps", "as requested", "based on our conversation", "great question!", "certainly!" as a sentence opener) and dev-cycle narration ("in this PR...", "we then implemented...", "the next step was to...", "as discussed", "in this session...", a bare "TODO"/"WIP" left in prose). Do NOT flag in-document cross-references ("see the Setup section above") — only flag reference to the conversation or development process behind the document. Same Changelog exception as Rule 16.
 
 If a flag is absent from [FLAGS], skip that rule entirely — no scan, no "0 violations" line, no contribution to density or the TOP 3.
+
+## Rule 18 — Banned jargon [MEDIUM] — scan only if [JARGON] is non-empty
+
+[JARGON] is already merged and resolved by the caller. Each line is `term => replacement` or a bare `term` (delete). Do not read any list file.
+
+- Flag each occurrence of a listed term in prose. Match whole words and phrases, ignoring case. Inflections match: `leverage` also catches *leveraged*.
+- Skip code blocks, inline code, URLs, proper nouns, and text inside quotation marks.
+- Quote the sentence and name the fix: the replacement, or "delete" for a bare entry.
+- Severity is MEDIUM in every intent profile. Intent never deprioritizes it.
+- Violations count toward density and the TOP 3.
+
+If [JARGON] is empty, skip Rule 18 entirely — no scan, no "0 violations" line.
 
 ## Output format
 
@@ -126,6 +141,10 @@ Rule 9 — Second person  [LOW / skip]  [N] violations  ← deprioritized for [p
 [if [FLAGS] included --no-em-dash and/or --no-weakeners, append their rules after Rule 14:]
 Rule 15 — No em dashes  [flag: --no-em-dash]  [N] violations
   · [quoted sentence]
+
+[if [JARGON] is non-empty, append Rule 18 last, after any extended rules:]
+Rule 18 — Banned jargon  [MEDIUM / MEDIUM]  [N] violations  ([N] terms in list)
+  · [quoted sentence] → [replacement or "delete"]
 
 TOP 3 TO FIX (intent-adjusted): [rule], [rule], [rule]
 Run /iceberg:edit to apply all fixes.

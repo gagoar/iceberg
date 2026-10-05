@@ -20,8 +20,12 @@ description: >
   --no-em-dash (Rule 15), --no-weakeners (Rule 16, mid-document statements that undercut
   a claim outside a labeled Limitations/Caveats section), --strip-ai-commentary (Rule 17,
   self-referential assistant voice and dev-cycle narration).
-argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [optional: intent description]"
-allowed-tools: Read, Write, Agent
+
+  Jargon list (Rule 18): if .iceberg/jargon.txt exists, every listed word is flagged
+  automatically. --jargon=<pack> adds a bundled industry pack (technology, finance,
+  marketing, corporate, legal) for one run. Build the list with /iceberg:jargon.
+argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [--jargon=<pack>] [optional: intent description]"
+allowed-tools: Read, Write, Glob, Agent
 ---
 
 # Iceberg Scorer
@@ -33,8 +37,9 @@ Score a document against the 14 Hemingway rules. Read only — never modify the 
 - `/iceberg:score <file-path>` — read the file, score it, print the report. Resolve relative paths from the current working directory.
 - `/iceberg:score <file-path> "intent: formal engineering spec"` — score with intent context
 - `/iceberg:score <file-path> --no-em-dash --no-weakeners --strip-ai-commentary` — also scan for the opt-in extended rules (any combination, including one alone)
+- `/iceberg:score <file-path> --jargon=finance,legal` — also flag words from the named bundled packs for this run
 - `/iceberg:score` — user pastes text; score and return the report
-- **Automatic** — score every plan and output document before returning it to the user. The automatic pass scores the core 14 rules only — extended rules need an explicit flag, every time, even on auto-triggered scores.
+- **Automatic** — score every plan and output document before returning it to the user. The automatic pass scores the core 14 rules only — extended rules need an explicit flag, every time, even on auto-triggered scores. Rule 18 is the one exception: it runs on the automatic pass whenever `.iceberg/jargon.txt` exists, because the file is the user's standing opt-in.
 
 The optional intent argument overrides the inferred profile. Pass one of: `"technical"`, `"conversational"`, or `"executive"`, or a free-form string the scorer maps to the nearest profile.
 
@@ -47,7 +52,7 @@ Extended rules (15, 16, 17) are scanned and reported only when their flag is pre
 1. Read the full document before scoring anything.
 2. Infer intent from document signals (or use the provided intent argument).
 3. Score twice: once with default severities (objective), once with intent-profile severities (adjusted).
-4. Deduplication: word triggering both Rule 3 and Rule 4 → count under Rule 4 only. Sentence triggering both Rule 1 and Rule 6 → count under Rule 1 only.
+4. Deduplication: word triggering both Rule 3 and Rule 4 → count under Rule 4 only. Sentence triggering both Rule 1 and Rule 6 → count under Rule 1 only. Term triggering both Rule 13 and Rule 18 → count under Rule 18 only.
 5. Calculate weighted density for each score: `weighted_violations / (word_count / 100)`.
 6. Assign a letter grade for each score using the density scale.
 7. Return the complete report with both grades side by side. No preamble, no changelog.
@@ -93,6 +98,28 @@ Extended rules (15, 16, 17) are scanned and reported only when their flag is pre
 
 When none of these flags are passed, skip all three rules entirely — don't scan for them, don't report "0 violations," don't include them in density or the TOP 3. The report should look identical to a pre-extended-rules report.
 
+## Rule 18 — Banned jargon (user list) [MEDIUM]
+
+Runs when `.iceberg/jargon.txt` exists in the working directory, or when `--jargon=<pack>[,<pack>]` is passed. With neither, skip it entirely: no scan, no "0 violations" line, no effect on density or the TOP 3.
+
+### Loading the list
+
+Build one merged list before scoring:
+
+1. Start empty.
+2. For each pack named by an `@pack <name>` line in `.iceberg/jargon.txt`, then by `--jargon=`, read `skills/jargon/packs/<name>.txt` and add its entries. Try `${CLAUDE_PLUGIN_ROOT}/skills/jargon/packs/<name>.txt` first. If that does not resolve, Glob for `**/skills/jargon/packs/<name>.txt`. If a pack cannot be found, say so in one line and continue without it.
+3. Add the entries from `.iceberg/jargon.txt` itself. A later entry replaces an earlier entry for the same term.
+4. Remove every term named by a `!term` line.
+
+Entry format: `term => replacement` replaces. A bare `term` deletes. Lines starting with `#` are comments. Format details live in `skills/jargon/SKILL.md`.
+
+### Scanning
+
+- Flag each occurrence of a listed term in prose. Match whole words and phrases, ignoring case. Inflections match: `leverage` also catches *leveraged*.
+- Skip code blocks, inline code, URLs, proper nouns, and text inside quotation marks.
+- Quote the sentence and name the fix: the replacement, or "delete" for a bare entry.
+- Severity is MEDIUM in every intent profile. Intent never deprioritizes it, because the user chose these words.
+
 ## Score report format
 
 ```
@@ -127,11 +154,16 @@ Rule 15 — No em dashes  [flag: --no-em-dash]  3 violations
   · "The API is fast — under 50ms — for reads."
   · … 2 more
 
+[if Rule 18 is active (jargon list or --jargon), append it last, after any extended rules:]
+Rule 18 — Banned jargon  [MEDIUM / MEDIUM]  2 violations  (list: .iceberg/jargon.txt, 38 terms)
+  · "We will leverage the cache." → use
+  · "Let's touch base on Monday." → delete
+
 TOP 3 TO FIX (intent-adjusted): jargon (Rule 13), long sentences (Rule 1), passive voice (Rule 2)
 Run /iceberg:edit to apply all fixes.
 ```
 
-Extended-rule violations count toward density and the TOP 3 only when their flag was passed for this run.
+Extended-rule violations count toward density and the TOP 3 only when their flag was passed for this run. Rule 18 violations count whenever Rule 18 is active.
 
 ## Grade scale (density: violations per 100 words)
 
@@ -160,7 +192,7 @@ The scorer infers intent automatically. Pass an explicit intent to override.
 
 ## Long documents (over 500 words)
 
-Spawn the `iceberg-score` agent with the full document, the intent string, and which extended-rule flags (`--no-em-dash`, `--no-weakeners`, `--strip-ai-commentary`, if any) were passed. Return the agent's output as the final result.
+Spawn the `iceberg-score` agent with the full document, the intent string, which extended-rule flags (`--no-em-dash`, `--no-weakeners`, `--strip-ai-commentary`, if any) were passed, and the merged jargon list as a `[JARGON]` block (one `term => replacement` or bare `term` per line, already resolved). The skill loads and merges the list so the agent does not parse files. If Rule 18 is inactive, pass `[JARGON]` as empty. Return the agent's output as the final result.
 
 ## After the report
 
