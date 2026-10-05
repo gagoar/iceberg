@@ -1,0 +1,49 @@
+# corporate pack: general business-speak with plain replacements
+# format: term => replacement   (bare term = delete and repair the sentence)
+leverage => use
+utilize => use
+synergy
+synergies
+circle back => follow up
+touch base => talk
+reach out => contact
+loop in => include
+take offline => discuss later
+bandwidth => time
+deep dive => close look
+drill down => look closer
+low-hanging fruit => easy wins
+move the needle => improve <metric>
+boil the ocean => do too much
+paradigm shift => change
+game-changer => big change
+best practices => proven methods
+value-add => benefit
+stakeholders => the people affected
+key takeaways => main points
+action items => tasks
+deliverables => outputs
+alignment => agreement
+align on => agree on
+buy-in => approval
+ownership => responsibility
+empower => let
+enable => let
+streamline => simplify
+optimize => improve
+incentivize => reward
+operationalize => put into use
+onboard => train
+offboard => remove access for
+pivot => change direction
+ideate => brainstorm
+learnings => lessons
+going forward
+at the end of the day
+at this point in time => now
+in terms of
+think outside the box => try new ideas
+open the kimono
+peel the onion => look closer
+on the same page => in agreement
+ping => message

@@ -1,0 +1,38 @@
+# finance pack: financial-services and investor-speak with plain replacements
+# format: term => replacement   (bare term = delete and repair the sentence)
+headwinds => obstacles
+tailwinds => advantages
+deleverage => pay down debt
+monetize => earn revenue from
+optimize the balance sheet => cut debt or free up cash
+capital allocation => how we spend money
+capital deployment => spending
+run rate => current yearly pace
+burn rate => monthly cash spend
+runway => months of cash left
+top line => revenue
+bottom line => profit
+margin compression => shrinking margins
+accretive => adds to earnings
+dilutive => cuts earnings per share
+liquidity event => sale or IPO
+ebitda => operating profit before depreciation and amortization
+yield enhancement => higher returns
+risk-adjusted => after accounting for risk
+de-risk => reduce risk
+asset class => type of investment
+high net worth => wealthy
+value creation => growth in value
+value unlock => new value
+rightsize => cut staff or costs
+streamline => simplify
+synergies
+operating leverage => profit growth from fixed costs
+street expectations => analyst forecasts
+forward-looking => about the future
+going forward
+at the end of the day
+underperform => lag
+outperform => beat
+sunset => retire
+ring-fence => set aside

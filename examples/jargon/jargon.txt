@@ -1,0 +1,7 @@
+# fixture list for the Rule 18 tests (copy to .iceberg/jargon.txt)
+leverage => use
+synergy
+touch base
+move the needle => improve conversion rate
+headwinds => obstacles
+!going forward

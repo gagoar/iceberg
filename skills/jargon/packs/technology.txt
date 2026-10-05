@@ -1,0 +1,42 @@
+# technology pack: engineering and product buzzwords with plain replacements
+# format: term => replacement   (bare term = delete and repair the sentence)
+leverage => use
+utilize => use
+synergy
+paradigm shift => change
+best-of-breed => best
+best practices => proven methods
+bleeding edge => newest
+cutting-edge => new
+state-of-the-art => current
+next-generation => new
+game-changer => big change
+game-changing => major
+disruptive => new
+robust => reliable
+scalable => handles <N> users
+seamless => smooth
+seamlessly
+turnkey => ready to use
+low-hanging fruit => easy wins
+deep dive => close look
+double-click on => look at
+unpack => explain
+ideate => brainstorm
+operationalize => put into use
+productize => ship as a product
+solutioning => designing
+end-to-end => full
+holistic => complete
+ecosystem => set of tools
+pain point => problem
+bandwidth => time
+circle back => follow up
+take offline => discuss later
+boil the ocean => do too much
+move the needle => improve <metric>
+north star => main goal
+value-add => benefit
+mission-critical => essential
+enterprise-grade => production-ready
+future-proof => built to last

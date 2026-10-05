@@ -1,0 +1,40 @@
+# legal pack: legalese with plain replacements
+# format: term => replacement   (bare term = delete and repair the sentence)
+herein => in this document
+hereinafter => later in this document
+hereby
+heretofore => until now
+hereto => to this
+thereof => of it
+therein => in it
+thereto => to it
+whereas => because
+wherein => where
+aforementioned => this
+aforesaid => this
+notwithstanding => despite
+pursuant to => under
+in accordance with => under
+in the event that => if
+in the event of => if there is
+prior to => before
+subsequent to => after
+commence => start
+terminate => end
+cease => stop
+endeavor to => try to
+shall => must
+witnesseth
+per annum => per year
+inter alia => among other things
+vis-a-vis => compared with
+pro rata => in proportion
+bona fide => genuine
+force majeure => events beyond our control
+indemnify => cover losses of
+hold harmless => not blame
+null and void => invalid
+time is of the essence => deadlines are firm
+without prejudice => without losing any rights
+to the extent that => if
+for the avoidance of doubt

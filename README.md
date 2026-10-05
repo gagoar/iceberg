@@ -73,6 +73,7 @@ Run /iceberg:edit to apply all fixes.
 |---------|--------------|
 | `/iceberg:score <file>` | Grades a document against 14 rules. Never touches the file. |
 | `/iceberg:edit <file>` | Rewrites the document inline. Returns the clean text. No annotations. No changelog. |
+| `/iceberg:jargon` | Builds your jargon list from an industry pack, your own words, or both. See "Jargon lists" below. |
 | Automatic scoring | Scores every plan Claude generates. The report appears at the top of the response. |
 
 Pass an intent to steer the grade: `/iceberg:score path/to/document.md "executive summary"`.
@@ -86,6 +87,8 @@ iceberg leaves code blocks, inline code, command names, variable names, URLs, an
 iceberg ships one hook, a `Stop` hook in `.claude-plugin/hooks.json`. After each reply it checks the working directory for `.iceberg/last-score.txt`. If the file exists, the hook shows its first 2,000 characters as a status message. It runs `head` and `jq` on that one local file. It makes no network calls and writes no files.
 
 The skills write `.iceberg/last-score.txt` after each score. They read the documents you point them at and write only the documents you ask `/iceberg:edit` to rewrite.
+
+If `.iceberg/jargon.txt` exists, the skills also read it and the bundled packs it names, in the plugin's `skills/jargon/packs/` folder. Only `/iceberg:jargon` writes that file, and only after you confirm or when you run `add` or `remove`. Nothing is sent over the network.
 
 ## The 14 rules
 
@@ -175,6 +178,38 @@ Any flag works alone.
 For documents over 500 words, both skills spawn dedicated subagents (`iceberg-edit`, `iceberg-score`). The main context window stays small.
 
 Run `/statusline-setup` to surface the last score in the Claude Code status bar. The score skill writes `.iceberg/last-score.txt` after every run.
+
+</details>
+
+<details>
+<summary><b>Jargon lists (Rule 18)</b></summary>
+
+Give iceberg a list of words you never want in your documents. `/iceberg:edit` replaces or removes them. `/iceberg:score` flags them. The rule runs whenever `.iceberg/jargon.txt` exists. You don't pass a flag.
+
+Run `/iceberg:jargon` to build the file. It asks for your industry, shows a starter list, and writes the file after you confirm. Bundled packs: `technology`, `finance`, `marketing`, `corporate`, `legal`. For any other industry, it drafts a list for you to edit.
+
+```
+# .iceberg/jargon.txt
+@pack finance            # include a bundled pack
+!headwinds               # keep the pack, but allow this word
+leverage => use          # replace
+synergy                  # bare entry: delete and repair the sentence
+move the needle => improve conversion rate
+```
+
+| Command | What it does |
+|---------|--------------|
+| `/iceberg:jargon` | Interview, then writes `.iceberg/jargon.txt`. |
+| `/iceberg:jargon add <term> [=> replacement]` | Adds one entry. |
+| `/iceberg:jargon remove <term>` | Removes one entry. For a pack term, adds a `!term` line. |
+| `/iceberg:jargon --show` | Prints the merged list. |
+| `/iceberg:jargon --packs` | Lists the bundled packs. |
+| `/iceberg:score <file> --jargon=finance` | Checks one run against a pack, with no file needed. |
+| `/iceberg:edit <file> --jargon=finance,legal` | Edits one run against several packs. |
+
+Matching ignores case and covers inflections: `leverage` also catches *leveraged*. A later line replaces an earlier line for the same term, so your entries override a pack. Code blocks, inline code, URLs, proper nouns, and quoted text stay untouched.
+
+Rule 18 runs last in `/iceberg:edit`, so no earlier rewrite can bring a listed word back. Rule 13 judges jargon by reader knowledge. Rule 18 enforces your list. A term on both lists counts once, under Rule 18.
 
 </details>
 

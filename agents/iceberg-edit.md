@@ -6,7 +6,8 @@ description: >
   Applies all 14 rules and returns only the rewritten document. Never adds content.
   Accepts an optional intent string to preserve the intended voice while applying rules.
   Accepts optional flags for three extended rules, off by default: --no-em-dash,
-  --no-weakeners, --strip-ai-commentary.
+  --no-weakeners, --strip-ai-commentary. Accepts an optional merged jargon list
+  ([JARGON]) and applies it as Rule 18.
 allowed-tools: Read, Write
 disallowedTools: Skill
 ---
@@ -29,6 +30,8 @@ Signals: code blocks, system/component names as subjects, reference-style header
 If `[INTENT]` was provided, use it. Map free-form strings to the nearest profile.
 
 Flags: [FLAGS]
+
+Jargon list: [JARGON]
 
 ## Step 2 — Apply intent profile
 
@@ -107,10 +110,21 @@ Exception: do not restructure sections explicitly titled Background, Overview, C
 - Do NOT touch in-document cross-references ("see the Setup section above") — those aren't about how the document was made.
 - Changelog/release-notes documents are exempt, same as Rule 16.
 
+## Rule 18 — Banned jargon — apply only if [JARGON] is non-empty
+
+[JARGON] is already merged and resolved by the caller. Each line is `term => replacement` (replace) or a bare `term` (delete). Do not read any list file.
+
+- Match whole words and phrases, ignoring case. Inflections match: `leverage` also catches *leveraged* and *leveraging*. Inflect the replacement to fit: "we leveraged the cache" → "we used the cache".
+- A replacement with `<placeholder>` text (for example `improve <metric>`) needs a real value from the document. If the document has none, use the nearest plain wording without the placeholder.
+- For a bare entry, delete the word or phrase and rewrite the sentence so it still parses and keeps its meaning. Deleting the word alone is not enough.
+- Apply Rule 18 last, so no earlier rewrite brings a listed word back.
+- Never change code blocks, inline code, URLs, proper nouns, or text inside quotation marks.
+- Add nothing beyond what a replacement or sentence repair needs.
+
 ## Rules for editing
 
 1. Read the full document before changing anything.
-2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15–17 last, only if their flag appears in [FLAGS].
+2. Apply rules in order, 1 through 14. Earlier rules take priority when they conflict. Apply Rules 15–17 last, only if their flag appears in [FLAGS]. Apply Rule 18 after those, only if [JARGON] is non-empty.
 3. Never change: code blocks, inline code, commands, variable names, URLs, proper nouns.
 4. Do not add content. Cut, simplify, and restructure only.
 5. Preserve all headings, lists, tables, and document structure.
