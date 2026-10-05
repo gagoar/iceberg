@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:1200px;height:520px;background:#FAF9F5;font-family:system-ui,-apple-system,sans-serif;color:#3D3D3A;padding:36px 48px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.card{background:#fff;border:2px solid #D1CFC5;border-radius:16px;padding:26px 30px;display:flex;flex-direction:column}
+.card.b{border-top:6px solid #B04A3F}.card.a{border-top:6px solid #788C5D}
+.lab{font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+.b .lab{color:#B04A3F}.a .lab{color:#788C5D}
+.g{display:flex;align-items:center;gap:12px;font-family:ui-monospace,Menlo,monospace;font-size:16px;color:#87867F;margin-bottom:18px}
+.badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:ui-serif,Georgia,serif;font-size:28px}
+.b .badge{background:rgba(176,74,63,.14);color:#B04A3F}.a .badge{background:rgba(120,140,93,.18);color:#788C5D}
+p{font-family:ui-serif,Georgia,serif;font-size:23px;line-height:1.5;font-style:italic}
+mark{background:rgba(176,74,63,.16);color:#8a3228;border-radius:4px;padding:0 3px}
+</style></head><body>
+<div class="card b"><div class="lab">Before /iceberg:edit</div><div class="g"><span class="badge">D</span>46 words, 1 sentence</div>
+<p>The configuration system <mark>was designed</mark> <mark>in order to</mark> <mark>facilitate</mark> the <mark>seamless</mark> management of environment-specific settings, and it <mark>essentially</mark> <mark>leverages</mark> a hierarchical override mechanism that is <mark>quite</mark> flexible and <mark>arguably</mark> one of the most <mark>comprehensive solutions</mark> available for handling the <mark>somewhat</mark> <mark>complex requirements</mark> of modern cloud deployments.</p></div>
+<div class="card a"><div class="lab">After</div><div class="g"><span class="badge">A</span>39 words, 3 sentences</div>
+<p>The configuration system manages environment-specific settings through a hierarchical override mechanism. You define values at the base level, then override them per environment. This works well for deployments with hundreds of configuration parameters across staging, production, and preview environments.</p></div>
+</body></html>

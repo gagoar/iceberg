@@ -1,28 +1,38 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "iceberg",
-  "id": "iceberg",
   "owner": {
     "name": "gagoar",
     "url": "https://github.com/gagoar"
   },
   "metadata": {
     "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
-    "version": "0.4.0"
+    "version": "0.4.1"
   },
   "plugins": [
     {
       "name": "iceberg",
       "source": "./",
       "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "author": {
         "name": "gagoar",
         "url": "https://github.com/gagoar"
       },
-      "homepage": "https://github.com/gagoar/iceberg",
+      "homepage": "https://gagoar.github.io/iceberg/",
       "license": "MIT",
-      "keywords": ["writing", "documentation", "hemingway", "technical-writing", "style"],
+      "keywords": [
+        "writing",
+        "documentation",
+        "hemingway",
+        "technical-writing",
+        "style",
+        "claude-code",
+        "plugin",
+        "readme",
+        "editing",
+        "prose"
+      ],
       "category": "productivity"
     }
   ]

@@ -1,20 +1,19 @@
 # iceberg
 
-A Claude Code plugin that applies Hemingway writing rules to technical documentation.
+**Claude writes like a consultant. iceberg makes it write like an engineer.**
 
-Named after Hemingway's iceberg theory: the strength of a document comes from what you cut, not what you add.
+[![Release](https://img.shields.io/github/v/release/gagoar/iceberg?color=D97757)](https://github.com/gagoar/iceberg/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-788C5D)](LICENSE)
+[![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-141413)](https://gagoar.github.io/iceberg/)
+[![Stars](https://img.shields.io/github/stars/gagoar/iceberg?style=flat&color=D97757)](https://github.com/gagoar/iceberg/stargazers)
+
+iceberg is a Claude Code plugin. It grades every plan Claude writes against 14 Hemingway rules. It rewrites any document to an A on request.
+
+![The same paragraph before and after /iceberg:edit](docs/assets/before-after.png)
+
+Hemingway's iceberg theory gives the plugin its name: a document gets its strength from what you cut, not what you add.
 
 ## Install
-
-Via the [gago-plugins](https://github.com/gagoar/gago-plugins) marketplace:
-
-```
-/plugin marketplace add github:gagoar/gago-plugins
-/plugin install iceberg@gago-plugins
-/reload-plugins
-```
-
-Or standalone:
 
 ```
 /plugin marketplace add github:gagoar/iceberg
@@ -22,143 +21,65 @@ Or standalone:
 /reload-plugins
 ```
 
-## Update
+Prefer one marketplace for all gagoar plugins? Use [gago-plugins](https://github.com/gagoar/gago-plugins):
 
 ```
-/plugin update iceberg@iceberg
+/plugin marketplace add github:gagoar/gago-plugins
+/plugin install iceberg@gago-plugins
 /reload-plugins
 ```
 
-Auto-update is off by default for third-party plugins. Enable it in the plugin manager: open `/plugin` → Marketplaces tab → toggle auto-update for iceberg.
+## Why
 
-## What it does
+- **It runs on its own.** After install, iceberg scores every plan Claude produces before you read it.
+- **It shows its work.** The report quotes every violation with its rule and severity.
+- **It has evals.** Haiku and Sonnet gave the same grade on 3 of 3 eval documents. See [`examples/eval/results.md`](examples/eval/results.md).
 
-Two skills ship with iceberg:
+## 30-second tour
 
-**`/iceberg:score`** reads any document, analyzes it against 14 writing rules, and returns a graded report — without touching the file. It infers the document's intent automatically and shows two grades side by side: an objective score and an intent-adjusted score.
+Run `/iceberg:edit` on this paragraph (Grade D, 46 words, one sentence):
 
-**`/iceberg:edit`** rewrites the document inline using those same 14 rules. It applies them in order and returns the clean document. No annotations. No changelog.
+> The configuration system was designed in order to facilitate the seamless management of environment-specific settings, and it essentially leverages a hierarchical override mechanism that is quite flexible and arguably one of the most comprehensive solutions available for handling the somewhat complex requirements of modern cloud deployments.
 
-Both skills run automatically on every plan Claude produces. No setup needed after install. Three more rules — stripping em dashes, mid-document statements that weaken a claim, and self-referential AI/dev-cycle commentary — exist as opt-in flags; see [Extended rules](#extended-rules-opt-in). None of the three runs automatically.
+You get this (Grade A, 39 words, three sentences):
 
-## What happens automatically
+> The configuration system manages environment-specific settings through a hierarchical override mechanism. You define values at the base level, then override them per environment. This works well for deployments with hundreds of configuration parameters across staging, production, and preview environments.
 
-After install, every plan Claude generates is scored before it reaches you. The score report appears at the top of the response. If you want the plan rewritten, run `/iceberg:edit` on it.
+What changed: the passive verb became active. The edit cut the adverbs and qualifiers. Abstract nouns became concrete ones.
 
-## Usage
-
-**Score a file:**
-```
-/iceberg:score path/to/document.md
-```
-
-**Score with explicit intent:**
-```
-/iceberg:score path/to/document.md "executive summary"
-```
-
-**Score with the extended rules on** (off by default — see [Extended rules](#extended-rules-opt-in)):
-```
-/iceberg:score path/to/document.md --no-em-dash --no-weakeners --strip-ai-commentary
-```
-
-**Edit a file:**
-```
-/iceberg:edit path/to/document.md
-```
-
-**Edit with the extended rules on:**
-```
-/iceberg:edit path/to/document.md --no-em-dash --no-weakeners --strip-ai-commentary
-```
-Any flag works alone too.
-
-**Edit pasted text:**
-```
-/iceberg:edit
-```
-Paste your text. The skill returns the rewritten version.
-
-## Reading the score report
+Run `/iceberg:score` on a file to see the report without changing it:
 
 ```
 ICEBERG SCORE — deployment-guide.md
 Assumed intent: technical spec
-  (signals: code blocks, component names as subjects, formal headers)
 
-                  Objective   Intent-adjusted
-Grade:               C             C
-Density:         6.2/100w      6.2/100w   (target: ≤4.0)
-Violations:         18            18
-Word count:      290w
+Grade: C      Violations: 18      Words: 290
 
-VIOLATIONS
-
-Rule 1 — Short sentences  [HIGH / HIGH]  2 violations
-  · "The system fetches the config and validates it, which can take up to 500ms
-    depending on network conditions and cache state." (34w)
-  · … 1 more
-
-Rule 2 — Active voice  [HIGH / HIGH]  3 violations
+Rule 1 — Short sentences  [HIGH]  2 violations
+  · "The system fetches the config and validates it, which can take up to
+    500ms depending on network conditions and cache state." (34w)
+Rule 2 — Active voice  [HIGH]  3 violations
   · "The config is loaded by the server"
-  · "Errors are forwarded to the logging service"
-  · … 1 more
 
-Rule 9 — Second person  [LOW / LOW]  1 violation
-  · "We recommend configuring the timeout before deploying."
-
-[14 rules total — every violation quoted]
-
-TOP 3 TO FIX (intent-adjusted): passive voice (Rule 2), long sentences (Rule 1), vague descriptors (Rule 14)
+TOP 3 TO FIX: passive voice, long sentences, vague descriptors
 Run /iceberg:edit to apply all fixes.
 ```
 
-**Grade** uses violation density — weighted violations per 100 words — so a clean 2,000-word spec and a clean 100-word summary both grade A.
+## What you get
 
-**Objective vs intent-adjusted:** The objective grade applies default severity to all 14 rules. The intent-adjusted grade uses the inferred profile to deprioritize rules that don't apply to this document type. A "we recommend" in a conversational guide is expected; in a formal spec it's a violation.
+| Command | What it does |
+|---------|--------------|
+| `/iceberg:score <file>` | Grades a document against 14 rules. Never touches the file. |
+| `/iceberg:edit <file>` | Rewrites the document inline. Returns the clean text. No annotations. No changelog. |
+| Automatic scoring | Scores every plan Claude generates. The report appears at the top of the response. |
 
-## Grade scale
+Pass an intent to steer the grade: `/iceberg:score path/to/document.md "executive summary"`.
 
-| Grade | Density (per 100 words) | Meaning |
-|-------|------------------------|---------|
-| A | ≤ 1.0 | Publish-ready |
-| B | ≤ 4.0 | Minor cleanup needed |
-| C | ≤ 8.0 | Needs work before sharing |
-| D | ≤ 15.0 | Significant rewrite required |
-| F | > 15.0 | Start over |
+To edit pasted text, run `/iceberg:edit` with no argument and paste.
 
-## Intent profiles
+iceberg leaves code blocks, inline code, command names, variable names, URLs, and proper nouns untouched.
 
-The scorer infers intent from the document's structure, tone, and vocabulary. You can override it by passing an explicit intent string.
-
-| Rule | Technical (default) | Conversational | Executive |
-|------|-------------------|---------------|-----------|
-| 5 — Concrete nouns | MEDIUM | MEDIUM | HIGH |
-| 8 — Lead with answer | MEDIUM | MEDIUM | HIGH |
-| 9 — Second person | LOW | skip | LOW |
-| 11 — Negative framing | LOW | skip | LOW |
-| 12 — Short paragraphs | LOW | skip | HIGH |
-| 13 — Jargon | MEDIUM | HIGH | HIGH |
-
-**Conversational** — guides, tutorials, onboarding docs. "We built this to help you" is expected; jargon is penalized harder because readers need definitions.
-
-**Executive** — summaries, proposals, recommendations. Buried answers and long paragraphs are penalized hard; second-person informality is ignored.
-
-**Technical** — specs, READMEs, API docs, plans. Default severity on all rules.
-
-## Before / after
-
-The same paragraph, before and after `/iceberg:edit`:
-
-**Before** (Grade D, density 8.0/100w):
-> The configuration system was designed in order to facilitate the seamless management of environment-specific settings, and it essentially leverages a hierarchical override mechanism that is quite flexible and arguably one of the most comprehensive solutions available for handling the somewhat complex requirements of modern cloud deployments.
-
-**After** (Grade A, density 0.8/100w):
-> The configuration system manages environment-specific settings through a hierarchical override mechanism. You define values at the base level, then override them per environment. This works well for deployments with hundreds of configuration parameters across staging, production, and preview environments.
-
-What changed: 1 sentence (67w) → 3 sentences. Passive voice fixed. Adverbs removed. Qualifiers deleted. Abstract nouns made concrete.
-
-## The 14 Rules
+## The 14 rules
 
 | # | Rule | Example |
 |---|------|---------|
@@ -177,35 +98,93 @@ What changed: 1 sentence (67w) → 3 sentences. Passive voice fixed. Adverbs rem
 | 13 | Define or cut jargon | First use gets an inline definition. Plain equivalent beats jargon. |
 | 14 | Measure, don't describe | "under 100ms" — not "fast" |
 
-## Extended rules (opt-in)
+<details>
+<summary><b>Grade scale</b></summary>
 
-Three more rules exist outside the core 14. None runs unless you pass its flag — they make tone/content calls the core 14 don't, and not every document should have them forced on.
+Grade uses violation density: weighted violations per 100 words. Length does not skew the grade: a clean 2,000-word spec and a clean 100-word summary both get an A.
+
+| Grade | Density (per 100 words) | Meaning |
+|-------|------------------------|---------|
+| A | ≤ 1.0 | Publish-ready |
+| B | ≤ 4.0 | Minor cleanup needed |
+| C | ≤ 8.0 | Needs work before sharing |
+| D | ≤ 15.0 | Significant rewrite required |
+| F | > 15.0 | Start over |
+
+</details>
+
+<details>
+<summary><b>Intent profiles</b></summary>
+
+The scorer infers intent from the document's structure, tone, and vocabulary. Pass an explicit intent string to override it. The report shows two grades side by side: objective (default severity on all 14 rules) and intent-adjusted (iceberg deprioritizes rules that don't fit the document type).
+
+| Rule | Technical (default) | Conversational | Executive |
+|------|-------------------|---------------|-----------|
+| 5 — Concrete nouns | MEDIUM | MEDIUM | HIGH |
+| 8 — Lead with answer | MEDIUM | MEDIUM | HIGH |
+| 9 — Second person | LOW | skip | LOW |
+| 11 — Negative framing | LOW | skip | LOW |
+| 12 — Short paragraphs | LOW | skip | HIGH |
+| 13 — Jargon | MEDIUM | HIGH | HIGH |
+
+**Technical:** specs, READMEs, API docs, plans. Default severity on all rules.
+
+**Conversational:** guides, tutorials, onboarding docs. "We built this to help you" is expected. iceberg penalizes jargon harder because readers need definitions.
+
+**Executive:** summaries, proposals, recommendations. Buried answers and long paragraphs are penalized hard. Second-person informality is ignored.
+
+</details>
+
+<details>
+<summary><b>Extended rules (opt-in)</b></summary>
+
+Three more rules exist outside the core 14. None runs unless you pass its flag. They make tone and content calls that not every document should have forced on.
 
 | Flag | Rule | Example |
 |------|------|---------|
 | `--no-em-dash` | No em dashes | "Ship it, but test it first." — not "Ship it — but test it first." |
-| `--no-weakeners` | No mid-document weakeners | Delete or relocate-to-Limitations a clause that undercuts a claim the document just made — "we're still figuring this out," "take this with a grain of salt" — mid-flow. |
+| `--no-weakeners` | No mid-document weakeners | Delete or move to Limitations a clause that undercuts a claim the document just made: "we're still figuring this out," "take this with a grain of salt." |
 | `--strip-ai-commentary` | No AI commentary | "The client retries failed requests." — not "I've added retry logic — let me know if you want changes." Strips self-referential assistant voice and dev-cycle narration ("in this PR...", "we then implemented..."). |
 
-`--no-weakeners` doesn't touch single hedge words (that's Rule 4) or anything inside a section actually labeled Limitations, Caveats, Risks, or Open questions — a caveat in the right place isn't a violation, it's the document being honest about scope.
+Use them with either command:
 
-`--strip-ai-commentary` doesn't touch legitimate in-document cross-references ("see the Setup section above") — only reference to the conversation or development process that produced the document. Both `--no-weakeners` and `--strip-ai-commentary` exempt genuine Changelog/release-notes documents, where change-history framing is the point.
+```
+/iceberg:score path/to/document.md --no-em-dash --no-weakeners --strip-ai-commentary
+/iceberg:edit path/to/document.md --no-em-dash --no-weakeners --strip-ai-commentary
+```
 
-## What it doesn't touch
+Any flag works alone.
 
-Code blocks, inline code, command names, variable names, URLs, and proper nouns are never modified.
+`--no-weakeners` leaves single hedge words to Rule 4. It also ignores anything inside a section labeled Limitations, Caveats, Risks, or Open questions. A caveat in the right place is the document being honest about scope.
 
-## Long documents
+`--strip-ai-commentary` keeps legitimate cross-references ("see the Setup section above"). It strips only references to the conversation or process that produced the document. Both `--no-weakeners` and `--strip-ai-commentary` exempt Changelog and release-notes documents, where change history is the point.
 
-For documents over 500 words, both skills spawn dedicated subagents (`iceberg-edit`, `iceberg-score`). The main context window stays clean.
+</details>
 
-## Status line
+<details>
+<summary><b>Long documents and the status line</b></summary>
+
+For documents over 500 words, both skills spawn dedicated subagents (`iceberg-edit`, `iceberg-score`). The main context window stays small.
 
 Run `/statusline-setup` to surface the last score in the Claude Code status bar. The score skill writes `.iceberg/last-score.txt` after every run.
 
-## For plugin developers
+</details>
 
-See `TESTING.md` for the manual test checklist. Calibration fixtures are in `examples/eval/` — `violations.md` (expected Grade F), `clean.md` (expected Grade A), and three model-comparison documents. `examples/eval/results.md` records Haiku vs Sonnet accuracy findings.
+## FAQ
+
+**Does it change my code?** No. iceberg leaves code blocks, inline code, URLs, and proper nouns untouched.
+
+**Does it cost tokens on long documents?** Documents over 500 words run in a subagent, so your main context stays small.
+
+**Can I turn off the automatic scoring?** Disable the plugin in `/plugin`, or run `/plugin uninstall iceberg@iceberg`.
+
+**Will it update itself?** Auto-update is off by default for third-party plugins. To enable it, open `/plugin`, go to the Marketplaces tab, and toggle auto-update for iceberg. To update by hand, run `/plugin update iceberg@iceberg`, then `/reload-plugins`.
+
+## Contributing
+
+Run the manual checklist in [`TESTING.md`](TESTING.md). Calibration fixtures live in [`examples/eval/`](examples/eval/): `violations.md` (expect Grade F), `clean.md` (expect Grade A), and three model-comparison documents. [`examples/eval/results.md`](examples/eval/results.md) records the Haiku vs Sonnet findings.
+
+Full guide: [gagoar.github.io/iceberg](https://gagoar.github.io/iceberg/guide.html)
 
 ## License
 
