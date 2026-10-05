@@ -1,3 +1,5 @@
+<p><img src="docs/assets/favicon.svg" alt="iceberg icon" width="96" height="96"></p>
+
 # iceberg
 
 **Claude writes like a consultant. iceberg makes it write like an engineer.**
