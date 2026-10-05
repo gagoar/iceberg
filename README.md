@@ -39,13 +39,13 @@ Prefer one marketplace for all gagoar plugins? Use [gago-plugins](https://github
 
 ## 30-second tour
 
-Run `/iceberg:edit` on this paragraph (Grade D, 46 words, one sentence):
+Run `/iceberg:edit` on this paragraph (Grade F, 46 words, one sentence):
 
 > The configuration system was designed in order to facilitate the seamless management of environment-specific settings, and it essentially leverages a hierarchical override mechanism that is quite flexible and arguably one of the most comprehensive solutions available for handling the somewhat complex requirements of modern cloud deployments.
 
-You get this (Grade A, 39 words, three sentences):
+You get this (Grade A, 35 words, three sentences):
 
-> The configuration system manages environment-specific settings through a hierarchical override mechanism. You define values at the base level, then override them per environment. This works well for deployments with hundreds of configuration parameters across staging, production, and preview environments.
+> The configuration system manages environment-specific settings through a hierarchical override mechanism. Teams define values at the base level, then override them per environment. The mechanism handles hundreds of parameters across staging, production, and preview environments.
 
 What changed: the passive verb became active. The edit cut the adverbs and qualifiers. Abstract nouns became concrete ones.
 
@@ -73,6 +73,7 @@ Run /iceberg:edit to apply all fixes.
 |---------|--------------|
 | `/iceberg:score <file>` | Grades a document against 14 rules. Never touches the file. |
 | `/iceberg:edit <file>` | Rewrites the document inline. Returns the clean text. No annotations. No changelog. |
+| `/iceberg:jargon` | Builds your jargon list from an industry pack, your own words, or both. See "Jargon lists" below. |
 | Automatic scoring | Scores every plan Claude generates. The report appears at the top of the response. |
 
 Pass an intent to steer the grade: `/iceberg:score path/to/document.md "executive summary"`.
@@ -169,6 +170,38 @@ Any flag works alone.
 For documents over 500 words, both skills spawn dedicated subagents (`iceberg-edit`, `iceberg-score`). The main context window stays small.
 
 Run `/statusline-setup` to surface the last score in the Claude Code status bar. The score skill writes `.iceberg/last-score.txt` after every run.
+
+</details>
+
+<details>
+<summary><b>Jargon lists (Rule 18)</b></summary>
+
+Give iceberg a list of words you never want in your documents. `/iceberg:edit` replaces or removes them. `/iceberg:score` flags them. The rule runs whenever `.iceberg/jargon.txt` exists. You don't pass a flag.
+
+Run `/iceberg:jargon` to build the file. It asks for your industry, shows a starter list, and writes the file after you confirm. Bundled packs: `technology`, `finance`, `marketing`, `corporate`, `legal`. For any other industry, it drafts a list for you to edit.
+
+```
+# .iceberg/jargon.txt
+@pack finance            # include a bundled pack
+!headwinds               # keep the pack, but allow this word
+leverage => use          # replace
+synergy                  # bare entry: delete and repair the sentence
+move the needle => improve conversion rate
+```
+
+| Command | What it does |
+|---------|--------------|
+| `/iceberg:jargon` | Interview, then writes `.iceberg/jargon.txt`. |
+| `/iceberg:jargon add <term> [=> replacement]` | Adds one entry. |
+| `/iceberg:jargon remove <term>` | Removes one entry. For a pack term, adds a `!term` line. |
+| `/iceberg:jargon --show` | Prints the merged list. |
+| `/iceberg:jargon --packs` | Lists the bundled packs. |
+| `/iceberg:score <file> --jargon=finance` | Checks one run against a pack, with no file needed. |
+| `/iceberg:edit <file> --jargon=finance,legal` | Edits one run against several packs. |
+
+Matching ignores case and covers inflections: `leverage` also catches *leveraged*. A later line replaces an earlier line for the same term, so your entries override a pack. Code blocks, inline code, URLs, proper nouns, and quoted text stay untouched.
+
+Rule 18 runs last in `/iceberg:edit`, so no earlier rewrite can bring a listed word back. Rule 13 judges jargon by reader knowledge. Rule 18 enforces your list. A term on both lists counts once, under Rule 18.
 
 </details>
 

@@ -136,7 +136,7 @@ footer a:hover { color: var(--slate); }
         <button type="button" id="btn-before" aria-pressed="true">Before</button>
         <button type="button" id="btn-after" aria-pressed="false">After</button>
       </div>
-      <div class="demo-meta"><span class="badge d" id="badge">D</span><span id="meta">46 words, 1 sentence</span></div>
+      <div class="demo-meta"><span class="badge d" id="badge">F</span><span id="meta">46 words, 1 sentence</span></div>
       <p class="sample" id="sample"></p>
       <p class="demo-note" id="note">Passive voice, filler adverbs, hedges, and abstract nouns. Eleven flags in one sentence.</p>
     </div>
@@ -212,15 +212,15 @@ Run /iceberg:edit to apply all fixes.</pre>
 <script>
 (function () {
   var before = 'The configuration system <mark>was designed</mark> <mark>in order to</mark> <mark>facilitate</mark> the <mark>seamless</mark> management of environment-specific settings, and it <mark>essentially</mark> <mark>leverages</mark> a hierarchical override mechanism that is <mark>quite</mark> flexible and <mark>arguably</mark> one of the most <mark>comprehensive solutions</mark> available for handling the <mark>somewhat</mark> <mark>complex requirements</mark> of modern cloud deployments.';
-  var after = 'The configuration system manages environment-specific settings through a hierarchical override mechanism. You define values at the base level, then override them per environment. This works well for deployments with hundreds of configuration parameters across staging, production, and preview environments.';
+  var after = 'The configuration system manages environment-specific settings through a hierarchical override mechanism. Teams define values at the base level, then override them per environment. The mechanism handles hundreds of parameters across staging, production, and preview environments.';
   var sample = document.getElementById('sample'), badge = document.getElementById('badge'),
       meta = document.getElementById('meta'), note = document.getElementById('note'),
       bB = document.getElementById('btn-before'), bA = document.getElementById('btn-after');
   function show(isAfter) {
     sample.innerHTML = isAfter ? after : before;
-    badge.textContent = isAfter ? 'A' : 'D';
+    badge.textContent = isAfter ? 'A' : 'F';
     badge.className = 'badge ' + (isAfter ? 'a' : 'd');
-    meta.textContent = isAfter ? '39 words, 3 sentences' : '46 words, 1 sentence';
+    meta.textContent = isAfter ? '35 words, 3 sentences' : '46 words, 1 sentence';
     note.textContent = isAfter
       ? 'Active verbs, no filler, and a number where "complex" used to be.'
       : 'Passive voice, filler adverbs, hedges, and abstract nouns. Eleven flags in one sentence.';
