@@ -8,7 +8,7 @@ description: >
   Accepts optional flags for three extended rules, off by default: --no-em-dash,
   --no-weakeners, --strip-ai-commentary. Accepts an optional merged jargon list
   ([JARGON]) and applies it as Rule 18.
-allowed-tools: Read, Write
+allowed-tools: Read
 disallowedTools: Skill
 ---
 

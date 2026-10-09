@@ -31,7 +31,7 @@ description: >
 
   For documents over 500 words, spawn the iceberg-edit agent to preserve the main context window.
 argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [--jargon=<pack>] [optional: intent description]"
-allowed-tools: Read, Write, Glob, Agent
+allowed-tools: Read, Glob, Agent
 ---
 
 # Iceberg Editor

@@ -25,7 +25,7 @@ description: >
   automatically. --jargon=<pack> adds a bundled industry pack (technology, finance,
   marketing, corporate, legal) for one run. Build the list with /iceberg:jargon.
 argument-hint: "[file-path or paste text] [--no-em-dash] [--no-weakeners] [--strip-ai-commentary] [--jargon=<pack>] [optional: intent description]"
-allowed-tools: Read, Write, Glob, Agent
+allowed-tools: Read, Glob, Agent, Write(./.iceberg/**)
 ---
 
 # Iceberg Scorer
