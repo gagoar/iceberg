@@ -14,7 +14,7 @@ const SCOPED_ONLY: ReadonlySet<string> = new Set([
 ]);
 // Scopes that match everything are the same as no scope.
 const BROAD: ReadonlySet<string> = new Set(["*", "**", "/**", "./**", "//**", "~/**", "**/*"]);
-const KEYS: readonly string[] = ["allowed-tools", "allowed_tools", "tools"];
+const FRONTMATTER_FIELDS: readonly string[] = ["allowed-tools", "allowed_tools", "tools"];
 
 function frontmatter(text: string): readonly string[] {
   const match = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
@@ -44,7 +44,7 @@ function splitTools(value: string): readonly string[] {
 
 function toolsIn(lines: readonly string[]): readonly string[] {
   const tools: string[] = [];
-  const keyRe = new RegExp(`^(?:${KEYS.join("|")})\\s*:\\s*(.*)$`);
+  const keyRe = new RegExp(`^(?:${FRONTMATTER_FIELDS.join("|")})\\s*:\\s*(.*)$`);
   lines.forEach((line, i) => {
     const m = keyRe.exec(line);
     if (!m) return;
