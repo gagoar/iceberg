@@ -154,3 +154,14 @@ When a test fails, check which rule produced the wrong output. Edit the relevant
 - `skills/score/SKILL.md` or `skills/edit/SKILL.md` — for trigger failures
 
 Re-run the failing test after each change. Use `examples/violations.md` as ground truth — it has known expected outputs annotated in the file header.
+
+## Automated gate
+
+CI runs `scripts/check_allowed_tools.py` and `claude plugin validate --strict` on every PR. Run both locally before you push:
+
+```
+python3 -I scripts/check_allowed_tools.py .
+claude plugin validate . --strict
+```
+
+**Pass:** no unscoped `Write`, `Edit`, or `Bash` grant in any skill or agent. Write `Write(./.iceberg/**)`, not `Write`.
