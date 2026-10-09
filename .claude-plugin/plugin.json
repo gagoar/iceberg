@@ -1,7 +1,7 @@
 {
   "name": "iceberg",
   "displayName": "iceberg",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
   "author": {
     "name": "gagoar",

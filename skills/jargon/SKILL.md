@@ -10,7 +10,7 @@ description: >
 
   Never writes the list without the user's confirmation.
 argument-hint: "[industry | add <term> [=> replacement] | remove <term> | --show | --packs]"
-allowed-tools: Read, Write, Glob, AskUserQuestion
+allowed-tools: Read, Glob, AskUserQuestion, Write(./.iceberg/**)
 ---
 
 # Iceberg Jargon List
