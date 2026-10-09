@@ -157,11 +157,15 @@ Re-run the failing test after each change. Use `examples/violations.md` as groun
 
 ## Automated gate
 
-CI runs `scripts/check_allowed_tools.py` and `claude plugin validate --strict` on every PR. Run both locally before you push:
+CI runs `scripts/check-plugin-safety.ts` and `claude plugin validate --strict` on every PR. Run both before you push:
 
 ```
-node scripts/check-allowed-tools.ts .
+node scripts/check-plugin-safety.ts .
 claude plugin validate . --strict
 ```
 
-**Pass:** no unscoped `Write`, `Edit`, or `Bash` grant in any skill or agent. Write `Write(./.iceberg/**)`, not `Write`.
+The gate fails on three things the plugin-directory upload scanner holds for review:
+
+- A skill, agent, or command that pre-approves `Write`, `Edit`, or `Bash` with no path scope. Write `Write(./docs/**)`, not `Write`.
+- Shipped code that copies the whole environment (`...process.env`, `Object.keys(process.env)`). Read the named variables you need.
+- A committed native executable. The scanner cannot read it.
