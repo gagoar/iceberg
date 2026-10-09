@@ -160,7 +160,7 @@ Re-run the failing test after each change. Use `examples/violations.md` as groun
 CI runs `scripts/check_allowed_tools.py` and `claude plugin validate --strict` on every PR. Run both locally before you push:
 
 ```
-python3 -I scripts/check_allowed_tools.py .
+node scripts/check-allowed-tools.ts .
 claude plugin validate . --strict
 ```
 
