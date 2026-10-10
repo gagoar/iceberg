@@ -1,4 +1,4 @@
-name: validate
+name: plugin-safety
 
 on:
   pull_request:
@@ -9,15 +9,15 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  plugin-safety:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Gate unscoped write/exec grants
-        run: node scripts/check-allowed-tools.ts .
+      - name: Gate unscoped grants, whole-environment reads and committed executables
+        run: node scripts/check-plugin-safety.ts .
       - name: Install Claude Code CLI
         run: npm install -g @anthropic-ai/claude-code
       - name: Validate plugin
