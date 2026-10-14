@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>
+<html lang="en"><head><meta charset="UTF-8"><title>iceberg before and after</title><style>
+@font-face{font-family:"Libre Caslon Text";font-weight:400;src:url("fonts/libre-caslon-text-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Libre Caslon Text";font-weight:700;src:url("fonts/libre-caslon-text-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Libre Caslon Text";font-style:italic;font-weight:400;src:url("fonts/libre-caslon-text-latin-400-italic.woff2") format("woff2")}
 *{box-sizing:border-box;margin:0;padding:0}
-body{width:1200px;height:520px;background:#FAF9F5;font-family:system-ui,-apple-system,sans-serif;color:#3D3D3A;padding:36px 48px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
-.card{background:#fff;border:2px solid #D1CFC5;border-radius:16px;padding:26px 30px;display:flex;flex-direction:column}
-.card.b{border-top:6px solid #B04A3F}.card.a{border-top:6px solid #788C5D}
-.lab{font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
-.b .lab{color:#B04A3F}.a .lab{color:#788C5D}
-.g{display:flex;align-items:center;gap:12px;font-family:ui-monospace,Menlo,monospace;font-size:16px;color:#87867F;margin-bottom:18px}
-.badge{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:ui-serif,Georgia,serif;font-size:28px}
-.b .badge{background:rgba(176,74,63,.14);color:#B04A3F}.a .badge{background:rgba(120,140,93,.18);color:#788C5D}
-p{font-family:ui-serif,Georgia,serif;font-size:23px;line-height:1.5;font-style:italic}
-mark{background:rgba(176,74,63,.16);color:#8a3228;border-radius:4px;padding:0 3px}
+body{width:1200px;height:520px;font-family:"Libre Caslon Text",Georgia,serif;color:#0a2f45;padding:34px 44px;display:grid;grid-template-columns:1fr 1fr;gap:28px;background:linear-gradient(180deg,#eaf6fb 0,#bfe3ea 100%)}
+.card{background:#f7fcfe;border:2px solid #7fb4c0;border-radius:2px;padding:24px 28px;display:flex;flex-direction:column}
+.card.a{border:3px solid #0e7c86}
+.lab{font:700 15px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#2b4d60;margin-bottom:14px}
+.g{display:flex;align-items:center;gap:14px;font:600 16px system-ui,sans-serif;color:#2b4d60;margin-bottom:16px}
+.badge{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:32px;background:#0b3a53;color:#fff;border:3px solid #0b3a53}
+.a .badge{background:#f7fcfe;color:#085b65;border-color:#0e7c86}
+p{font-style:italic;font-size:23px;line-height:1.5}
+mark{background:#dff0f5;color:#0a2f45;text-decoration:underline wavy #a3243b;text-decoration-thickness:1.5px;text-underline-offset:4px;padding:0 2px}
 </style></head><body>
 <div class="card b"><div class="lab">Before /iceberg:edit</div><div class="g"><span class="badge">F</span>46 words, 1 sentence</div>
 <p>The configuration system <mark>was designed</mark> <mark>in order to</mark> <mark>facilitate</mark> the <mark>seamless</mark> management of environment-specific settings, and it <mark>essentially</mark> <mark>leverages</mark> a hierarchical override mechanism that is <mark>quite</mark> flexible and <mark>arguably</mark> one of the most <mark>comprehensive solutions</mark> available for handling the <mark>somewhat</mark> <mark>complex requirements</mark> of modern cloud deployments.</p></div>
-<div class="card a"><div class="lab">After</div><div class="g"><span class="badge">A</span>35 words, 3 sentences</div>
+<div class="card a"><div class="lab">After: the tip</div><div class="g"><span class="badge">A</span>35 words, 3 sentences</div>
 <p>The configuration system manages environment-specific settings through a hierarchical override mechanism. Teams define values at the base level, then override them per environment. The mechanism handles hundreds of parameters across staging, production, and preview environments.</p></div>
 </body></html>
