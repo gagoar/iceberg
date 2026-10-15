@@ -7,6 +7,8 @@
 <meta name="description" content="A Claude Code plugin that grades every plan Claude writes against 14 Hemingway rules, and rewrites any document to an A on request.">
 <link rel="canonical" href="https://gagoar.github.io/iceberg/">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="preload" href="assets/fonts/libre-caslon-text-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
 <meta property="og:type" content="website">
 <meta property="og:title" content="iceberg: Claude writes like a consultant. iceberg makes it write like an engineer.">
 <meta property="og:description" content="A Claude Code plugin that grades every plan against 14 Hemingway rules and rewrites documents to an A.">
@@ -17,139 +19,114 @@
 <meta name="twitter:description" content="Grades every plan Claude writes against 14 rules. Rewrites docs to an A.">
 <meta name="twitter:image" content="https://gagoar.github.io/iceberg/assets/og.png">
 <style>
-:root {
-  --ivory:#FAF9F5; --slate:#141413; --clay:#D97757; --clay-d:#B85C3E; --oat:#E3DACC;
-  --olive:#788C5D; --rust:#B04A3F; --gray-150:#F0EEE6; --gray-300:#D1CFC5; --gray-500:#87867F;
-  --gray-700:#3D3D3A; --white:#FFFFFF;
-  --serif: ui-serif, Georgia, "Times New Roman", serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --border: 1.5px solid var(--gray-300);
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { font-family: var(--sans); background: var(--ivory); color: var(--gray-700); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
-.wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
-a { color: var(--clay-d); }
-code { font-family: var(--mono); font-size: 0.9em; background: var(--gray-150); padding: 1px 6px; border-radius: 4px; color: var(--slate); }
-h1, h2, h3 { font-family: var(--serif); font-weight: 500; color: var(--slate); letter-spacing: -0.01em; }
-h2 { font-size: 30px; line-height: 1.2; margin-bottom: 12px; }
-.eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--clay); margin-bottom: 12px; }
-section { padding: 64px 0; }
-.lead { font-size: 18px; max-width: 640px; margin-bottom: 28px; }
-
-nav.top { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; }
-nav.top .brand { font-family: var(--serif); font-size: 22px; color: var(--slate); text-decoration: none; display: flex; align-items: center; gap: 10px; }
-nav.top .brand img { width: 28px; height: 28px; }
-nav.top .links { display: flex; gap: 22px; font-size: 14px; }
-nav.top .links a { color: var(--gray-700); text-decoration: none; }
-nav.top .links a:hover { color: var(--clay-d); }
-
-.hero { padding: 56px 0 72px; }
-.hero h1 { font-size: clamp(38px, 6vw, 64px); line-height: 1.05; margin-bottom: 20px; max-width: 760px; }
-.hero h1 em { color: var(--clay); font-style: italic; }
-.hero .lead { color: var(--gray-700); }
-
-.install { background: var(--slate); border-radius: 12px; padding: 18px 22px; position: relative; max-width: 560px; margin-bottom: 20px; }
-.install pre { font-family: var(--mono); font-size: 13.5px; line-height: 1.8; color: #E8E6DE; overflow-x: auto; padding-right: 70px; }
-.install .c { color: var(--clay); } .install .a { color: #9BB07C; }
-.copy { position: absolute; top: 12px; right: 12px; font-family: var(--mono); font-size: 12px; background: #2a2a28; color: #E8E6DE; border: 1px solid #4a4a46; border-radius: 6px; padding: 5px 10px; cursor: pointer; }
-.copy:hover { background: #3a3a37; }
-.btns { display: flex; gap: 12px; flex-wrap: wrap; }
-.btn { display: inline-block; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; border: var(--border); color: var(--slate); background: var(--white); }
-.btn.primary { background: var(--clay); border-color: var(--clay); color: var(--white); }
-.btn:hover { border-color: var(--clay); }
-
-.demo { background: var(--white); border: var(--border); border-radius: 14px; padding: 26px; }
-.toggle { display: inline-flex; border: var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
-.toggle button { font-family: var(--mono); font-size: 13px; padding: 9px 18px; border: 0; background: var(--white); color: var(--gray-700); cursor: pointer; }
-.toggle button[aria-pressed="true"] { background: var(--slate); color: var(--white); }
-.demo-meta { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 13px; color: var(--gray-500); margin-bottom: 14px; }
-.badge { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 21px; }
-.badge.d { background: rgba(176,74,63,0.14); color: var(--rust); }
-.badge.a { background: rgba(120,140,93,0.18); color: var(--olive); }
-.sample { font-family: var(--serif); font-size: 20px; line-height: 1.6; font-style: italic; color: var(--gray-700); min-height: 190px; }
-.sample mark { background: rgba(176,74,63,0.16); color: #8a3228; border-radius: 4px; padding: 0 3px; }
-.demo-note { margin-top: 14px; font-size: 14px; color: var(--gray-500); }
-
-.report { background: var(--slate); border-radius: 12px; padding: 20px 24px; overflow-x: auto; }
-.report pre { font-family: var(--mono); font-size: 12.5px; line-height: 1.7; color: #E8E6DE; }
-.report .k { color: var(--clay); } .report .g { color: #9BB07C; } .report .d { color: #8a8880; }
-.two > * { min-width: 0; }
-.two { display: grid; grid-template-columns: 1fr 1.2fr; gap: 36px; align-items: center; }
-@media (max-width: 760px) { .two { grid-template-columns: 1fr; gap: 24px; } section { padding: 44px 0; } nav.top .links a:not(:last-child) { display: none; } }
-
-.rules { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; margin-top: 24px; }
-.rule { background: var(--white); border: var(--border); border-radius: 10px; padding: 14px 16px; }
-.rule .n { font-family: var(--mono); font-size: 11px; color: var(--gray-500); }
-.rule .t { font-family: var(--serif); font-size: 17px; color: var(--slate); margin: 2px 0 4px; }
-.rule .e { font-size: 13px; color: var(--gray-700); line-height: 1.45; }
-
-.proof { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-@media (max-width: 760px) { .proof { grid-template-columns: 1fr; } }
-.stat { background: var(--white); border: var(--border); border-radius: 12px; padding: 20px 22px; }
-.stat .big { font-family: var(--serif); font-size: 34px; color: var(--slate); line-height: 1.1; }
-.stat p { font-size: 14px; margin-top: 6px; }
-
-.cta { text-align: center; background: var(--oat); border-radius: 16px; padding: 48px 24px; }
-.cta .install { margin: 20px auto; text-align: left; }
-footer { border-top: var(--border); padding: 28px 0 48px; margin-top: 56px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--gray-500); }
-footer a { color: var(--gray-500); margin-right: 18px; text-decoration: none; }
-footer a:hover { color: var(--slate); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <nav class="top">
-    <a class="brand" href="./"><img src="assets/favicon.svg" alt="">iceberg</a>
-    <div class="links">
-      <a href="#demo">Demo</a>
-      <a href="#rules">Rules</a>
-      <a href="guide.html">Guide</a>
-      <a href="https://github.com/gagoar/iceberg">GitHub</a>
-    </div>
-  </nav>
-
-  <header class="hero">
-    <div class="eyebrow">Claude Code plugin</div>
-    <h1>Claude writes like a consultant. iceberg makes it write like <em>an engineer.</em></h1>
-    <p class="lead">iceberg grades every plan Claude writes against 14 Hemingway rules, and rewrites any document to an A on request.</p>
-    <div class="install">
-      <button class="copy" type="button" data-copy="install">Copy</button>
-<pre id="install-cmd"><span class="c">/plugin marketplace add</span> <span class="a">gagoar/iceberg</span>
-<span class="c">/plugin install</span> <span class="a">iceberg@iceberg</span>
+<main>
+<div class="ib-air ib-hero">
+  <div class="ib-wrap">
+    <nav class="ib-nav" aria-label="Main">
+      <a class="ib-brand" href="./"><img src="assets/favicon.svg" alt="">iceberg</a>
+      <div class="ib-links">
+        <a class="ib-opt" href="#demo">Demo</a>
+        <a class="ib-opt" href="#rules">Rules</a>
+        <a href="guide.html">Guide</a>
+        <a href="https://github.com/gagoar/iceberg">GitHub</a>
+      </div>
+    </nav>
+    <div class="ib-grid">
+      <header class="ib-hero-copy">
+        <div class="ib-eyebrow">Claude Code plugin</div>
+        <h1>Claude writes like a consultant. iceberg makes it write like <em>an engineer.</em></h1>
+        <p class="ib-lead">iceberg grades every plan Claude writes against 14 Hemingway rules, and rewrites any document to an A on request.</p>
+        <div class="ib-panel ib-install">
+          <button class="ib-copy" type="button" data-copy="install" aria-label="Copy the install commands">Copy</button>
+<pre><span class="c">/plugin marketplace add</span> <span class="g">gagoar/iceberg</span>
+<span class="c">/plugin install</span> <span class="g">iceberg@iceberg</span>
 <span class="c">/reload-plugins</span></pre>
+        </div>
+        <div class="ib-btns">
+          <a class="ib-btn ib-primary" href="https://github.com/gagoar/iceberg">View on GitHub</a>
+          <a class="ib-btn" href="guide.html">Read the guide</a>
+        </div>
+        <p class="ib-mark ib-above" style="margin-top:28px">Above the waterline: what you ship</p>
+      </header>
+      <div class="ib-tip">
+        <div class="ib-stamp" aria-label="Grade A"><b>A</b><span>Grade</span></div>
+        <svg viewBox="0 0 480 210" role="img" aria-label="The tip of an iceberg above the waterline">
+          <path d="M60 210 L120 138 L158 156 L222 70 L270 112 L306 84 L372 150 L400 176 L430 210 Z" fill="#ffffff" stroke="#0e7c86" stroke-width="2.5" stroke-linejoin="round"/>
+          <path d="M222 70 L270 112 L246 210 L190 210 L158 156 Z" fill="#eaf6fb"/>
+          <path d="M270 112 L306 84 L372 150 L400 176 L430 210 L300 210 Z" fill="#cfe9f1"/>
+          <path d="M60 210 L120 138 L158 156 L222 70 L270 112 L306 84 L372 150 L400 176 L430 210" fill="none" stroke="#0e7c86" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
     </div>
-    <div class="btns">
-      <a class="btn primary" href="https://github.com/gagoar/iceberg">View on GitHub</a>
-      <a class="btn" href="guide.html">Read the guide</a>
-    </div>
-  </header>
+  </div>
+</div>
+<div class="ib-waterline"></div>
 
-  <section id="demo" style="padding-top:0">
-    <div class="eyebrow">See it work</div>
+<div class="ib-flat-foam">
+  <div class="ib-wrap">
+    <div class="ib-grid">
+      <div class="ib-head" id="rules">
+        <p class="ib-mark ib-below">Below the waterline: what iceberg checks</p>
+        <h2>14 rules. Each one is checkable.</h2>
+        <p class="ib-lead">Every violation is quoted in the report. Code blocks, inline code, URLs, and proper nouns are never touched.</p>
+      </div>
+      <div class="ib-mass">
+        <svg viewBox="0 0 480 330" aria-hidden="true" focusable="false">
+          <defs><linearGradient id="ib-mg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e7c86" stop-opacity="0.62"/><stop offset="0.55" stop-color="#125f70" stop-opacity="0.38"/><stop offset="1" stop-color="#125f70" stop-opacity="0"/></linearGradient></defs>
+          <path d="M60 0 L430 0 L452 60 L416 120 L440 190 L360 250 L290 330 L230 290 L150 330 L96 240 L112 160 L48 90 Z" fill="url(#ib-mg)"/>
+          <path d="M150 0 L120 120 L170 230 M270 0 L300 130 L250 270 M370 0 L340 100 L390 200" fill="none" stroke="#f7fcfe" stroke-opacity="0.45" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="ib-grad-foam-sea">
+  <div class="ib-wrap">
+    <ol class="ib-rules" id="rule-grid"></ol>
+    <p class="ib-note">Three more rules sit outside the core 14 and stay off until you pass their flag: <code>--no-em-dash</code>, <code>--no-weakeners</code> and <code>--strip-ai-commentary</code>. Add a jargon list and iceberg flags those words too. The guide and README cover both.</p>
+  </div>
+</div>
+
+<div class="ib-flat-sea" id="demo">
+  <div class="ib-wrap ib-block">
+    <div class="ib-eyebrow" style="color:#06283b">See it work</div>
     <h2>One sentence in. Three sentences out.</h2>
-    <p class="lead">Toggle the same paragraph before and after <code>/iceberg:edit</code>. Each highlight is a rule violation.</p>
-    <div class="demo">
-      <div class="toggle" role="group" aria-label="Before or after">
+    <p class="ib-lead" style="color:#06283b;margin-bottom:0">Toggle the same paragraph before and after <code>/iceberg:edit</code>. Each underline is a rule violation. The After text is the tip: what you ship.</p>
+  </div>
+</div>
+<div class="ib-grad-sea-mid">
+  <div class="ib-wrap">
+    <div class="ib-demo">
+      <div class="ib-toggle" role="group" aria-label="Before or after">
         <button type="button" id="btn-before" aria-pressed="true">Before</button>
         <button type="button" id="btn-after" aria-pressed="false">After</button>
       </div>
-      <div class="demo-meta"><span class="badge d" id="badge">F</span><span id="meta">46 words, 1 sentence</span></div>
-      <p class="sample" id="sample"></p>
-      <p class="demo-note" id="note">Passive voice, filler adverbs, hedges, and abstract nouns. Eleven flags in one sentence.</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="two">
-      <div>
-        <div class="eyebrow">Automatic</div>
-        <h2>Runs on every plan.</h2>
-        <p class="lead" style="margin-bottom:0">After install, every plan Claude generates is scored before it reaches you. The report sits at the top of the response. If you want the rewrite, run <code>/iceberg:edit</code>.</p>
+      <div class="ib-demo-row">
+        <div class="ib-grade" id="badge" aria-hidden="true">F</div>
+        <div>
+          <div class="ib-meta"><span id="gradeword">Grade F</span> &middot; <span id="meta">46 words, 1 sentence</span></div>
+          <p class="ib-sample" id="sample"></p>
+          <p class="ib-demo-note" id="note">Passive voice, filler adverbs, hedges, and abstract nouns. Eleven flags in one sentence.</p>
+        </div>
       </div>
-      <div class="report">
+    </div>
+  </div>
+</div>
+
+<div class="ib-flat-mid">
+  <div class="ib-wrap ib-pad" style="padding-bottom:40px">
+    <div class="ib-two">
+      <div>
+        <div class="ib-eyebrow">Automatic</div>
+        <h2>Runs on every plan.</h2>
+        <p class="ib-lead">After install, every plan Claude generates is scored before it reaches you. The report sits at the top of the response. If you want the rewrite, run <code>/iceberg:edit</code>.</p>
+        <p style="font-size:16px;margin-top:14px">A <code>Stop</code> hook shows the last score as a status message. It reads one local file and makes no network calls.</p>
+      </div>
+      <div class="ib-panel">
 <pre><span class="k">ICEBERG SCORE</span> deployment-guide.md
 Assumed intent: technical spec
 
@@ -168,46 +145,47 @@ Rule 2  Active voice     <span class="k">HIGH</span>  3
 Run /iceberg:edit to apply all fixes.</pre>
       </div>
     </div>
-  </section>
-
-  <section id="rules" style="padding-top:0">
-    <div class="eyebrow">The rules</div>
-    <h2>14 rules. Each one is checkable.</h2>
-    <p class="lead" style="margin-bottom:0">Every violation is quoted in the report. Code blocks, inline code, URLs, and proper nouns are never touched.</p>
-    <div class="rules" id="rule-grid"></div>
-  </section>
-
-  <section style="padding-top:0">
-    <div class="eyebrow">Evidence</div>
+  </div>
+</div>
+<div class="ib-flat-mid">
+  <div class="ib-wrap" style="padding-top:8px;padding-bottom:4px">
+    <div class="ib-eyebrow">Evidence</div>
     <h2>Tested before it ships.</h2>
-    <div class="proof" style="margin-top:20px">
-      <div class="stat"><div class="big">3 of 3</div><p>Eval documents where Haiku and Sonnet gave the same grade. No high-severity rule was missed.</p></div>
-      <div class="stat"><div class="big">2 skills</div><p><code>/iceberg:score</code> reads and grades. <code>/iceberg:edit</code> rewrites. Documents over 500 words run in a subagent.</p></div>
-      <div class="stat"><div class="big">MIT</div><p>Open source. Fixtures and model comparison results live in <code>examples/eval/</code>.</p></div>
+  </div>
+</div>
+<div class="ib-grad-mid-deep">
+  <div class="ib-wrap">
+    <div class="ib-proof">
+      <div class="ib-stat"><div class="ib-big">3 of 3</div><p>Eval documents where Haiku and Sonnet gave the same grade. No high-severity rule was missed.</p></div>
+      <div class="ib-stat"><div class="ib-big">3 skills</div><p><code>/iceberg:score</code> reads and grades. <code>/iceberg:edit</code> rewrites. <code>/iceberg:jargon</code> builds your jargon list. Documents over 500 words run in a subagent.</p></div>
+      <div class="ib-stat"><div class="ib-big">MIT</div><p>Open source. Fixtures and model comparison results live in <code>examples/eval/</code>.</p></div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <section style="padding-top:0">
-    <div class="cta">
-      <h2>Install it in 10 seconds.</h2>
-      <div class="install">
-        <button class="copy" type="button" data-copy="install">Copy</button>
-<pre><span class="c">/plugin marketplace add</span> <span class="a">gagoar/iceberg</span>
-<span class="c">/plugin install</span> <span class="a">iceberg@iceberg</span>
+<div class="ib-flat-abyss">
+  <div class="ib-wrap">
+    <div class="ib-cta">
+      <h2>Install it in three commands.</h2>
+      <div class="ib-panel ib-install">
+        <button class="ib-copy" type="button" data-copy="install" aria-label="Copy the install commands">Copy</button>
+<pre><span class="c">/plugin marketplace add</span> <span class="g">gagoar/iceberg</span>
+<span class="c">/plugin install</span> <span class="g">iceberg@iceberg</span>
 <span class="c">/reload-plugins</span></pre>
       </div>
-      <div class="btns" style="justify-content:center">
-        <a class="btn primary" href="https://github.com/gagoar/iceberg">Star on GitHub</a>
-        <a class="btn" href="guide.html">Read the guide</a>
+      <div class="ib-btns">
+        <a class="ib-btn ib-primary" href="https://github.com/gagoar/iceberg">Star on GitHub</a>
+        <a class="ib-btn" href="guide.html">Read the guide</a>
       </div>
     </div>
-  </section>
-
-  <footer>
-    <div><a href="https://github.com/gagoar/iceberg">GitHub</a><a href="https://github.com/gagoar/iceberg/releases">Releases</a><a href="guide.html">Guide</a></div>
-    <div>MIT · v0.4.1 · by <a href="https://github.com/gagoar" style="margin:0">gagoar</a></div>
-  </footer>
+    <footer class="ib-foot">
+      <div><a href="https://github.com/gagoar/iceberg">GitHub</a><a href="https://github.com/gagoar/iceberg/releases">Releases</a><a href="guide.html">Guide</a></div>
+      <div class="ib-last">MIT &middot; v0.4.1 &middot; by <a href="https://github.com/gagoar">gagoar</a></div>
+      <div class="ib-credit">Type: Libre Caslon Text, &copy; The Libre Caslon Text Project Authors, SIL Open Font License 1.1.</div>
+    </footer>
+  </div>
 </div>
+</main>
 
 <script>
 (function () {
@@ -215,11 +193,13 @@ Run /iceberg:edit to apply all fixes.</pre>
   var after = 'The configuration system manages environment-specific settings through a hierarchical override mechanism. Teams define values at the base level, then override them per environment. The mechanism handles hundreds of parameters across staging, production, and preview environments.';
   var sample = document.getElementById('sample'), badge = document.getElementById('badge'),
       meta = document.getElementById('meta'), note = document.getElementById('note'),
+      gw = document.getElementById('gradeword'),
       bB = document.getElementById('btn-before'), bA = document.getElementById('btn-after');
   function show(isAfter) {
     sample.innerHTML = isAfter ? after : before;
     badge.textContent = isAfter ? 'A' : 'F';
-    badge.className = 'badge ' + (isAfter ? 'a' : 'd');
+    badge.className = 'ib-grade' + (isAfter ? ' ib-a' : '');
+    gw.textContent = isAfter ? 'Grade A' : 'Grade F';
     meta.textContent = isAfter ? '35 words, 3 sentences' : '46 words, 1 sentence';
     note.textContent = isAfter
       ? 'Active verbs, no filler, and a number where "complex" used to be.'
@@ -249,16 +229,17 @@ Run /iceberg:edit to apply all fixes.</pre>
   ];
   var grid = document.getElementById('rule-grid');
   rules.forEach(function (r, i) {
-    var d = document.createElement('div');
-    d.className = 'rule';
-    d.innerHTML = '<div class="n">Rule ' + (i + 1) + '</div><div class="t"></div><div class="e"></div>';
-    d.querySelector('.t').textContent = r[0];
-    d.querySelector('.e').textContent = r[1];
+    var d = document.createElement('li');
+    d.className = 'ib-rule';
+    d.innerHTML = '<span class="ib-n"></span><span class="ib-t"></span><span class="ib-e"></span>';
+    d.querySelector('.ib-n').textContent = String(i + 1);
+    d.querySelector('.ib-t').textContent = r[0];
+    d.querySelector('.ib-e').textContent = r[1];
     grid.appendChild(d);
   });
 
   var cmd = '/plugin marketplace add gagoar/iceberg\n/plugin install iceberg@iceberg\n/reload-plugins';
-  document.querySelectorAll('.copy').forEach(function (b) {
+  document.querySelectorAll('.ib-copy').forEach(function (b) {
     b.onclick = function () {
       navigator.clipboard.writeText(cmd).then(function () {
         b.textContent = 'Copied';

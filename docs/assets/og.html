@@ -1,17 +1,32 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>
+<html lang="en"><head><meta charset="UTF-8"><title>iceberg</title><style>
+@font-face{font-family:"Libre Caslon Text";font-weight:400;src:url("fonts/libre-caslon-text-latin-400-normal.woff2") format("woff2")}
+@font-face{font-family:"Libre Caslon Text";font-weight:700;src:url("fonts/libre-caslon-text-latin-700-normal.woff2") format("woff2")}
+@font-face{font-family:"Libre Caslon Text";font-style:italic;font-weight:400;src:url("fonts/libre-caslon-text-latin-400-italic.woff2") format("woff2")}
 *{box-sizing:border-box;margin:0;padding:0}
-body{width:1200px;height:630px;background:#FAF9F5;font-family:ui-serif,Georgia,serif;color:#141413;display:flex;flex-direction:column;justify-content:center;padding:0 96px;position:relative;overflow:hidden}
-.eyebrow{font-family:ui-monospace,Menlo,monospace;font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:#D97757;margin-bottom:28px}
-h1{font-weight:500;font-size:132px;letter-spacing:-.02em;line-height:1;margin-bottom:28px}
-p{font-size:42px;line-height:1.25;color:#3D3D3A;max-width:700px;font-style:italic}
-.line{position:absolute;left:0;right:0;top:455px;border-top:3px solid #D97757;opacity:.0}
-.berg{position:absolute;right:80px;top:115px;width:400px;height:400px}
-.cmd{position:absolute;left:96px;bottom:54px;font-family:ui-monospace,Menlo,monospace;font-size:24px;color:#87867F}
+body{width:1200px;height:630px;position:relative;overflow:hidden;font-family:"Libre Caslon Text",Georgia,serif;background:linear-gradient(180deg,#f7fcfe 0,#eaf6fb 300px,#bfe3ea 300px,#86c6d0 470px,#125f70 560px,#0b3a53 630px)}
+.line{position:absolute;left:0;right:0;top:298px;height:4px;background:#0e7c86}
+.eb{position:absolute;left:84px;top:44px;font:700 20px system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#085b65}
+h1{position:absolute;left:80px;top:68px;font-weight:400;font-size:150px;line-height:1;letter-spacing:-.02em;color:#0a2f45}
+.tag{position:absolute;left:84px;top:252px;width:660px;font-style:italic;font-size:30px;line-height:1.2;color:#2b4d60;display:none}
+.sub{position:absolute;left:84px;top:332px;width:640px;font-size:38px;line-height:1.28;color:#0a2f45}
+.sub em{color:#0b3a53}
+.cmd{position:absolute;left:84px;bottom:44px;font:600 24px system-ui,sans-serif;color:#fff;letter-spacing:.01em}
+.chip{position:absolute;left:84px;top:262px;font:700 17px system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#0a2f45}
+.chip2{position:absolute;left:84px;top:314px;display:none}
+svg{position:absolute;right:70px;top:20px;width:430px;height:560px}
+.stamp{position:absolute;right:64px;top:64px;width:120px;height:120px;border-radius:50%;border:5px solid #0e7c86;background:#f7fcfe;color:#085b65;font-weight:700;font-size:74px;display:flex;align-items:center;justify-content:center;transform:rotate(-8deg)}
 </style></head><body>
-<div class="eyebrow">Claude Code plugin</div>
+<div class="eb">Claude Code plugin</div>
 <h1>iceberg</h1>
-<p>Claude writes like a consultant. iceberg makes it write like an engineer.</p>
-<svg class="berg" viewBox="0 0 1200 1200"><path fill="#D97757" d="m700.92 830.21c-10.641-4.2656-15.844-16.312-11.578-27l39.562-99.141c4.2656-10.641 16.359-15.844 27-11.578s15.844 16.312 11.578 27l-39.562 99.141c-3.2344 8.1094-11.062 13.078-19.312 13.078-2.5781-0.046875-5.1562-0.51562-7.6875-1.5zm13.688-612.71c-10.312 5.0156-14.625 17.391-9.6562 27.75l48.984 101.25c3.5625 7.4062 11.016 11.719 18.703 11.719 3.0469 0 6.0938-0.65625 9.0469-2.0625 10.312-5.0156 14.625-17.391 9.6562-27.75l-48.984-101.25c-5.0156-10.359-17.391-14.672-27.75-9.6562zm404.63 231.28h-812.02l83.297-219.74c0.1875-0.51562 0.51562-0.84375 1.0312-1.0781 0.46875-0.23438 0.98438-0.23438 1.4531-0.046875l86.344 34.734c18.094 7.3125 38.953 1.5469 50.766-13.969l80.953-106.41c0.375-0.46875 0.89062-0.75 1.5-0.75h127.36c0.75 0 1.4062 0.42188 1.6875 1.0781l121.87 251.81c5.0156 10.312 17.391 14.625 27.75 9.6562 10.312-5.0156 14.625-17.391 9.6562-27.75l-121.87-251.81c-7.2188-14.906-22.547-24.516-39.094-24.516h-127.36c-13.5 0-26.391 6.4219-34.547 17.156l-80.953 106.41c-0.51562 0.65625-1.4062 0.9375-2.2031 0.60938l-86.391-34.734c-10.922-4.4062-22.875-4.2188-33.656 0.51562s-18.984 13.359-23.156 24.375l-88.875 234.52-182.02-0.046875c-11.484 0-20.766 9.3281-20.766 20.766 0 11.484 9.2812 20.766 20.766 20.766h902.06l-56.016 118.97c-0.42188 0.89062-1.3594 1.5-2.3438 1.5h-44.625c-18.188 0-34.266 10.922-41.016 27.797l-99.469 249.32c-0.23438 0.51562-0.60938 0.98438-1.125 1.2656l-97.312 57.188c-5.7656 3.4219-10.781 8.1562-14.438 13.734l-64.125 97.172c-0.23438 0.32812-0.84375 1.3594-2.2969 1.1719-1.5-0.046875-2.0156-1.0312-2.2031-1.3594l-162.61-300.05c-7.7344-14.25-22.594-23.109-38.812-23.109h-51.844c-1.0781 0-2.0625-0.70312-2.4375-1.7344l-65.672-180.37c-3.9375-10.781-15.797-16.359-26.625-12.422-10.781 3.9375-16.312 15.844-12.422 26.625l65.672 180.37c6.3281 17.391 23.016 29.062 41.484 29.062h51.844c0.98438 0 1.8281 0.51562 2.2969 1.3594l162.56 300.05c7.4531 13.781 21.281 22.406 36.938 23.062 0.65625 0.046875 1.3125 0.046875 1.9688 0.046875 14.859 0 28.547-7.3125 36.797-19.828l64.125-97.172c0.23438-0.32812 0.51562-0.60938 0.84375-0.79688l97.312-57.188c8.3906-4.9219 15.047-12.656 18.656-21.703l99.469-249.32c0.42188-0.98438 1.3594-1.6406 2.4375-1.6406h44.625c17.016 0 32.672-9.9375 39.938-25.359l64.359-136.64h90.469c11.484 0 20.766-9.2812 20.766-20.766 0-11.438-9.2812-20.766-20.766-20.766z"/></svg>
-<div class="cmd">/plugin marketplace add gagoar/iceberg</div>
+<div class="chip">Above the waterline: what you ship</div>
+<div class="line"></div>
+<div class="sub">Claude writes like a consultant. iceberg makes it write like <em>an engineer.</em></div>
+<div class="cmd">14 Hemingway rules &nbsp;&middot;&nbsp; /plugin marketplace add gagoar/iceberg</div>
+<svg viewBox="0 0 430 560"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e7c86" stop-opacity=".75"/><stop offset=".6" stop-color="#0b3a53" stop-opacity=".5"/><stop offset="1" stop-color="#0b3a53" stop-opacity=".1"/></linearGradient></defs>
+<path d="M20 280 L100 170 L150 195 L225 80 L285 135 L330 100 L400 220 L410 280 Z" fill="#fff" stroke="#0e7c86" stroke-width="4" stroke-linejoin="round"/>
+<path d="M285 135 L330 100 L400 220 L410 280 L270 280 Z" fill="#cfe9f1"/>
+<path d="M20 284 L410 284 L425 360 L380 430 L400 500 L300 545 L215 520 L120 548 L55 450 L65 370 L10 330 Z" fill="url(#g)"/>
+<path d="M130 284 L100 380 L150 480 M240 284 L270 390 L220 500 M340 284 L320 370 L370 450" fill="none" stroke="#eaf6fb" stroke-opacity=".45" stroke-width="3"/></svg>
+<div class="stamp">A</div>
 </body></html>
