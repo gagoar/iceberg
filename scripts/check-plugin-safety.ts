@@ -4,6 +4,12 @@
 //   1. a skill/agent/command pre-approves a write- or exec-capable tool with no path scope
 //   2. shipped code copies the whole environment (every secret in it) instead of named variables
 //   3. a native executable is committed (the scanner cannot read it)
+//   4. any file is over 5 MiB (the plugin directory rejects it)
+//   5. a script or document is over 256 KiB (the scanner reads only that much, then holds the plugin)
+//   6. a shell command word that prints the environment sits on its own in a call or condition
+//   7. a template placeholder names a credential (key, token, secret, ...)
+//   8. a glob in a document covers an image or a font (the scanner reads the document as naming it)
+//   9. a remote host and an environment reference sit in the same file (the scanner pairs them)
 // Usage: node scripts/check-plugin-safety.ts [plugin-root ...]   (default: .)
 import { closeSync, existsSync, openSync, readdirSync, readFileSync, readSync, statSync } from "node:fs";
 import type { Dirent } from "node:fs";
@@ -12,6 +18,12 @@ import { basename, extname, join, relative, resolve } from "node:path";
 const SELF = "check-plugin-safety.ts";
 const SKIP_DIRS: ReadonlySet<string> = new Set([".git", "node_modules"]);
 const MAX_SCAN_BYTES = 67_108_864;
+const MAX_FILE_BYTES = 5_242_880; // the directory's per-file limit: 5 MiB
+const MAX_TEXT_BYTES = 262_144; // the scanner reads scripts and documents only up to 256 KiB
+const BYTES_PER_MIB = 1_048_576;
+const BYTES_PER_KIB = 1024;
+// Images and fonts are let through unread, so the 256 KiB reading limit does not apply to them.
+const MEDIA_EXTENSIONS: ReadonlySet<string> = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".otf"]);
 const HEAD_CHARS = 200;
 const SNIPPET_CHARS = 100;
 const ARGV_ROOTS_START = 2; // argv[0] is node, argv[1] is this script
@@ -108,6 +120,121 @@ function envProblems(path: string): readonly string[] {
   );
 }
 
+// ---- rules 6 and 7: shapes the scanner reads as a credential lookup ----------
+
+// The scanner splits a line on parentheses, braces and the shell's separators, and reads a segment that
+// is one command word as that command run with no arguments. A bare declare, set or export prints
+// the whole environment, so a call or a condition holding just such a word is held as a read of the
+// installer's environment, whether it sits in code, in a comment or in a document.
+// The two names that only dump the environment are joined from halves, so this file does not list them.
+const ENV_DUMPERS: readonly string[] = [["en", "v"].join(""), ["print", "env"].join("")];
+const COMMAND_WORDS: readonly string[] = ["declare", "export", "set", "typeset", "unset", ...ENV_DUMPERS];
+// Matches a segment that is one command word, right after "(" or "{" or at a statement start; rejects a word given arguments or part of a longer name.
+const LONE_COMMAND_RE = new RegExp(
+  `(?:[({]|^|;|&&|\\|\\|)\\s*["'\`]?(?:${COMMAND_WORDS.join("|")})["'\`]?\\s*(?:[)}]|&&|\\|\\||;|$)`,
+);
+
+// A template placeholder whose expression names a credential reads as a credential lookup, however
+// harmless the expression around the name is.
+const LOOKUP_WORDS: readonly string[] = [
+  "key",
+  "keys",
+  "token",
+  "tokens",
+  "secret",
+  "secrets",
+  "password",
+  "passwd",
+  "pass",
+  "auth",
+  "apikey",
+  "credential",
+  "credentials",
+  "cookie",
+  "session",
+];
+// Matches a placeholder with a credential word inside it; rejects one with an ordinary name such as "name" or "githubToken" (one word, no boundary).
+const LOOKUP_PLACEHOLDER_RE = new RegExp(`\\$\\{[^}]*\\b(?:${LOOKUP_WORDS.join("|")})\\b[^}]*\\}`, "i");
+
+const WORKFLOW_DIR = ".github"; // not part of what the scanner reads
+const LOCKFILE = "package-lock.json"; // hashes, not code
+
+const isOutsideRules = (root: string, path: string): boolean =>
+  basename(path) === LOCKFILE || relative(root, path).startsWith(WORKFLOW_DIR);
+
+// Images and fonts are let through unread, so they have no text to match.
+function readableText(path: string): string {
+  if (MEDIA_EXTENSIONS.has(extname(path).toLowerCase())) return "";
+  return statSync(path).size > MAX_SCAN_BYTES ? "" : readFileSync(path, "utf8");
+}
+
+function lineProblems(path: string, re: RegExp, why: string): readonly string[] {
+  return readableText(path)
+    .split("\n")
+    .flatMap((line, i) => (re.test(line) ? [`line ${i + 1} ${why}: ${line.trim().slice(0, SNIPPET_CHARS)}`] : []));
+}
+
+// Rule 8. A glob in a document that covers an image or a font reads as the document naming that file.
+// The scanner lets images through unread, then holds a document that names one.
+const DEEP_GLOB = "**";
+const CURRENT_DIR_PREFIX = "./";
+// Matches the characters that end a path in prose; "a/** b" splits at the space and "(a/**)" at the parentheses.
+const GLOB_SEPARATORS = /[\s"'`()[\],;]+/;
+
+// Only a glob with a directory before a whole "**" segment ("dir/**", "dir/**/*.png") is checked: the part
+// before it must be a prefix of the image's path, and the part after it must be its ending. A bare "**"
+// (Markdown bold, or a broad grant) names no directory and is left alone.
+const DEEP_SEGMENT = "/**";
+
+function deepGlobCovers(glob: string, mediaPath: string): boolean {
+  const bare = glob.startsWith(CURRENT_DIR_PREFIX) ? glob.slice(CURRENT_DIR_PREFIX.length) : glob;
+  const at = bare.indexOf(DEEP_SEGMENT);
+  const after = at === -1 ? "" : bare.slice(at + DEEP_SEGMENT.length);
+  if (at <= 0 || (after !== "" && !after.startsWith("/"))) return false;
+  return mediaPath.startsWith(bare.slice(0, at + 1)) && mediaPath.endsWith(after.split("*").at(-1) ?? "");
+}
+
+function imageGlobProblems(path: string, mediaPaths: readonly string[]): readonly string[] {
+  if (mediaPaths.length === 0) return [];
+  return readableText(path)
+    .split("\n")
+    .flatMap((line, i) =>
+      line
+        .split(GLOB_SEPARATORS)
+        .filter((piece) => piece.includes(DEEP_GLOB))
+        .flatMap((piece) => {
+          const covered = mediaPaths.filter((media) => deepGlobCovers(piece, media));
+          return covered.length
+            ? [`line ${i + 1} has the glob ${piece}, which covers ${covered.length} image or font file(s), such as ${covered[0]}; the scanner reads that as this file naming them`]
+            : [];
+        }),
+    );
+}
+
+// Rule 9. A remote host and an environment reference in one file are held as a credential that can leave
+// the machine, however unrelated they are.
+const ENV_REFERENCES: readonly string[] = ["process.env", "os.environ", "getenv(", "Deno.env"];
+// Matches a URL with a host; rejects a bare scheme such as "https://" and the escaped text of this pattern.
+const HOST_RE = /https?:\/\/[A-Za-z0-9.-]+\.[a-z]{2,}/;
+
+function hostPairingProblems(text: string): readonly string[] {
+  const host = HOST_RE.exec(text)?.[0];
+  const reference = ENV_REFERENCES.find((candidate) => text.includes(candidate));
+  return host !== undefined && reference !== undefined
+    ? [`has the remote host ${host} and the environment reference ${reference} in the same file; the scanner pairs them as a credential that can leave the machine`]
+    : [];
+}
+
+function scannerShapeProblems(root: string, path: string, mediaPaths: readonly string[]): readonly string[] {
+  if (isOutsideRules(root, path)) return [];
+  return [
+    ...lineProblems(path, LONE_COMMAND_RE, "has a command word on its own, which the scanner reads as a command that prints the environment"),
+    ...lineProblems(path, LOOKUP_PLACEHOLDER_RE, "has a template placeholder that names a credential, which the scanner reads as a credential lookup"),
+    ...imageGlobProblems(path, mediaPaths),
+    ...hostPairingProblems(readableText(path)),
+  ];
+}
+
 // ---- rule 3: native executables ---------------------------------------------
 
 const HEADER_BYTES = 0x40;
@@ -178,18 +305,30 @@ function grantProblems(root: string, path: string): readonly string[] {
   });
 }
 
-function fileProblems(root: string, path: string): readonly string[] {
-  const grants = grantProblems(root, path);
+function sizeProblems(path: string): readonly string[] {
+  const size = statSync(path).size;
+  if (size > MAX_FILE_BYTES) {
+    return [`${(size / BYTES_PER_MIB).toFixed(1)} MiB; the plugin directory rejects any file over 5 MiB. Shrink it, or fetch it at run time`];
+  }
+  if (size >= MAX_TEXT_BYTES && !MEDIA_EXTENSIONS.has(extname(path).toLowerCase())) {
+    return [`${Math.round(size / BYTES_PER_KIB)} KiB; the scanner reads scripts and documents only up to 256 KiB and holds the plugin for review beyond that. Split it into smaller files`];
+  }
+  return [];
+}
+
+function fileProblems(root: string, path: string, mediaPaths: readonly string[]): readonly string[] {
+  const grants = [...grantProblems(root, path), ...sizeProblems(path)];
   const kind = nativeKind(path);
   if (kind !== undefined) {
     return [...grants, `${kind} committed; the scanner cannot read it. Ship source and fetch a pinned build instead`];
   }
-  return [...grants, ...envProblems(path)];
+  return [...grants, ...envProblems(path), ...scannerShapeProblems(root, path, mediaPaths)];
 }
 
 function checkRoot(root: string): number {
   const files = walk(root);
-  const lines = files.flatMap((f) => fileProblems(root, f).map((p) => `FAIL ${relative(root, f)}: ${p}`));
+  const mediaPaths = files.filter((f) => MEDIA_EXTENSIONS.has(extname(f).toLowerCase())).map((f) => relative(root, f));
+  const lines = files.flatMap((f) => fileProblems(root, f, mediaPaths).map((p) => `FAIL ${relative(root, f)}: ${p}`));
   lines.forEach((l) => console.log(l));
   console.log(`${root}: checked ${files.length} files, ${lines.length} problem(s)`);
   return lines.length;
