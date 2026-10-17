@@ -18,18 +18,12 @@ Hemingway's iceberg theory gives the plugin its name: a document gets its streng
 ## Install
 
 ```
-/plugin marketplace add github:gagoar/iceberg
-/plugin install iceberg@iceberg
-/reload-plugins
-```
-
-Prefer one marketplace for all gagoar plugins? Use [gago-plugins](https://github.com/gagoar/gago-plugins):
-
-```
 /plugin marketplace add github:gagoar/gago-plugins
 /plugin install iceberg@gago-plugins
 /reload-plugins
 ```
+
+[gago-plugins](https://github.com/gagoar/gago-plugins) is the one marketplace for all gagoar plugins. If you installed iceberg from its own marketplace earlier, run `/plugin uninstall iceberg@iceberg`, then install it again from gago-plugins.
 
 ## Why
 
@@ -219,9 +213,9 @@ Rule 18 runs last in `/iceberg:edit`, so no earlier rewrite can bring a listed w
 
 **Does it cost tokens on long documents?** Documents over 500 words run in a subagent, so your main context stays small.
 
-**Can I turn off the automatic scoring?** Disable the plugin in `/plugin`, or run `/plugin uninstall iceberg@iceberg`.
+**Can I turn off the automatic scoring?** Disable the plugin in `/plugin`, or run `/plugin uninstall iceberg@gago-plugins`.
 
-**Will it update itself?** Auto-update is off by default for third-party plugins. To enable it, open `/plugin`, go to the Marketplaces tab, and toggle auto-update for iceberg. To update by hand, run `/plugin update iceberg@iceberg`, then `/reload-plugins`.
+**Will it update itself?** Auto-update is off by default for third-party plugins. To enable it, open `/plugin`, go to the Marketplaces tab, and toggle auto-update for gago-plugins. To update by hand, run `/plugin update iceberg@gago-plugins`, then `/reload-plugins`.
 
 ## Contributing
 

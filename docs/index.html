@@ -42,8 +42,8 @@
         <p class="ib-lead">iceberg grades every plan Claude writes against 14 Hemingway rules, and rewrites any document to an A on request.</p>
         <div class="ib-panel ib-install">
           <button class="ib-copy" type="button" data-copy="install" aria-label="Copy the install commands">Copy</button>
-<pre><span class="c">/plugin marketplace add</span> <span class="g">gagoar/iceberg</span>
-<span class="c">/plugin install</span> <span class="g">iceberg@iceberg</span>
+<pre><span class="c">/plugin marketplace add</span> <span class="g">gagoar/gago-plugins</span>
+<span class="c">/plugin install</span> <span class="g">iceberg@gago-plugins</span>
 <span class="c">/reload-plugins</span></pre>
         </div>
         <div class="ib-btns">
@@ -169,8 +169,8 @@ Run /iceberg:edit to apply all fixes.</pre>
       <h2>Install it in three commands.</h2>
       <div class="ib-panel ib-install">
         <button class="ib-copy" type="button" data-copy="install" aria-label="Copy the install commands">Copy</button>
-<pre><span class="c">/plugin marketplace add</span> <span class="g">gagoar/iceberg</span>
-<span class="c">/plugin install</span> <span class="g">iceberg@iceberg</span>
+<pre><span class="c">/plugin marketplace add</span> <span class="g">gagoar/gago-plugins</span>
+<span class="c">/plugin install</span> <span class="g">iceberg@gago-plugins</span>
 <span class="c">/reload-plugins</span></pre>
       </div>
       <div class="ib-btns">
@@ -238,7 +238,7 @@ Run /iceberg:edit to apply all fixes.</pre>
     grid.appendChild(d);
   });
 
-  var cmd = '/plugin marketplace add gagoar/iceberg\n/plugin install iceberg@iceberg\n/reload-plugins';
+  var cmd = '/plugin marketplace add gagoar/gago-plugins\n/plugin install iceberg@gago-plugins\n/reload-plugins';
   document.querySelectorAll('.ib-copy').forEach(function (b) {
     b.onclick = function () {
       navigator.clipboard.writeText(cmd).then(function () {
