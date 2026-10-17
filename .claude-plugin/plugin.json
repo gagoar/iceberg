@@ -1,7 +1,8 @@
 {
   "name": "iceberg",
   "displayName": "iceberg",
-  "version": "0.5.3",
+  "version": "0.5.4",
+  "icon": "./.claude-plugin/icon.png",
   "description": "Apply Hemingway writing rules to technical documentation — inline, intentional, clean.",
   "author": {
     "name": "gagoar",
