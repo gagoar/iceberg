@@ -7,6 +7,7 @@
 [![Release](https://img.shields.io/github/v/release/gagoar/iceberg?color=D97757)](https://github.com/gagoar/iceberg/releases)
 [![License: MIT](https://img.shields.io/badge/license-MIT-788C5D)](LICENSE)
 [![Claude Code plugin](https://img.shields.io/badge/Claude%20Code-plugin-141413)](https://gagoar.github.io/iceberg/)
+[![Claude plugin directory: listed](https://img.shields.io/badge/Claude%20plugin%20directory-listed-D97757)](https://claude.com/marketplace/plugins)
 [![Stars](https://img.shields.io/github/stars/gagoar/iceberg?style=flat&color=D97757)](https://github.com/gagoar/iceberg/stargazers)
 
 iceberg is a Claude Code plugin. It grades every plan Claude writes against 14 Hemingway rules. It rewrites any document to an A on request.
